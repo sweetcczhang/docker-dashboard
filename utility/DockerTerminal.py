@@ -28,7 +28,7 @@ class KubernetesClient(object):
         try:
             resp = api.read_namespaced_pod(name=name, namespace='default')
         except ApiException as e:
-            if e.status !=404:
+            if e.status != 404:
                 print ("Unknown error: %s" %e)
                 exit(1)
 
@@ -52,8 +52,7 @@ class KubernetesClient(object):
                         }]
                     }
                 }
-                resp = api.create_namespaced_pod(body=pod_manifest,
-                                                 namespace='default')
+                api.create_namespaced_pod(body=pod_manifest, namespace='default')
                 while True:
                     resp = api.read_namespaced_pod(name=name,
                                                    namespace='default')
@@ -63,30 +62,19 @@ class KubernetesClient(object):
                 print("Done.")
 
         # calling exec and wait for response.
+
         exec_command = [
-            '/bin/sh',
-            '-c',
-            'echo This message goes to stderr >&2; echo This message goes to stdout']
-        execCommand = [
             "/bin/sh",
             "-c",
-            'TERM=xterm-256color; export TERM; [ -x /bin/bash ] && ([ -x /usr/bin/script ] && /usr/bin/script -q -c "/bin/bash" /dev/null || exec /bin/bash) || exec /bin/sh']
+            'TERM=xterm-256color; export TERM; [ -x /bin/bash ] && ([ -x /usr/bin/script ] && '
+            '/usr/bin/script -q -c "/bin/bash" /dev/null || exec /bin/bash) || exec /bin/sh']
+
+        # Calling exec interactively.
         resp = stream(api.connect_get_namespaced_pod_exec, name, 'default',
                       command=exec_command,
-                      stderr=True, stdin=False,
-                      stdout=True, tty=False)
-        print ("Response: " + resp)
-        # Calling exec interactively.
-        exec_command = ['/bin/sh']
-        resp = stream(api.connect_get_namespaced_pod_exec, name, 'default',
-                      command=execCommand,
                       stderr=True, stdin=True,
                       stdout=True, tty=True,
                       _preload_content=False)
-        commands = [
-            "echo test1",
-            "echo \"This message goes to stderr\" >&2",
-        ]
         return resp
 
 
@@ -115,8 +103,4 @@ class StreamThread(threading.Thread):
                 self.ws.close()
                 self.resp.close()
                 break
-
-if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=5002)
-    print "test"
 

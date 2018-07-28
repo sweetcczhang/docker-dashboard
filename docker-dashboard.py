@@ -1,108 +1,104 @@
-import time
-from flask import Flask
+#!/usr/local/miniconda2/bin/python
+# _*_ coding:utf-8 _*_
+"""
+# 程序的主入口
+# @Time   : 2018/7/18 22:55
+# @Author : 张城城
+"""
+from flask import Flask, render_template, jsonify
+from flask_sockets import Sockets
 from kube.blue import pods
-from kubernetes import config
-from kubernetes.client import Configuration
-from kubernetes.client.apis import core_v1_api
-from kubernetes.client.rest import ApiException
-from kubernetes.stream import stream
+from kube.hostInfo import hosts
+from kube.deployments import deploy
+from harbor.rest.restapi import harbors
+from utility.DockerTerminal import StreamThread, KubernetesClient
+from utility.HostTerminal import HostStreamThread
+import paramiko
+from paramiko.ssh_exception import AuthenticationException, SSHException
+import confHarbor
+
 app = Flask(__name__)
+sockets = Sockets(app)
 app.register_blueprint(pods, url_prefix='/admin')
-@app.route('/')
-def hello_world():
-    return 'Hello World zcc!'
+app.register_blueprint(hosts, url_prefix='/host')
+app.register_blueprint(deploy, url_prefix='/deploy')
+app.register_blueprint(harbors, url_prefix='/harbor')
 
-def get_pod_exec():
-    config.load_kube_config(config_file='/root/zcc/hello/config')
-    c = Configuration()
-    c.assert_hostname = False
-    Configuration.set_default(c)
-    api = core_v1_api.CoreV1Api()
-    name = 'busybox-test'
-    resp = None
+
+@app.route('/test1')
+def test():
+    confHarbor.HARBOR_PASSWORD = 'sweetcc'
+    confHarbor.HARBOR_USERNAME = 'sweetz'
+    confHarbor.HARBOR_URL = 'http://host'
+    return_model = {}
+    return_model['retCode'] = confHarbor.HARBOR_PASSWORD
+    return_model['retDesc'] = confHarbor.HARBOR_USERNAME
+    return jsonify(return_model)
+
+
+@app.route('/test2')
+def test1():
+    return_model = {}
+    return_model['retCode'] = confHarbor.HARBOR_PASSWORD
+    return_model['retDesc'] = confHarbor.HARBOR_USERNAME
+    return jsonify(return_model)
+
+
+@app.route('/docker')
+def docker_terminal():
+    return render_template('index.html')
+
+
+@app.route('/hosts')
+def host_terminal():
+    return render_template('index1.html')
+
+
+@sockets.route('/echo')
+def docker_socket(ws):
+    print "Web socket is start......"
+    client = KubernetesClient()
+    resp = client.get_pod_exec()
+    print 'pod has been created.......'
+    thread_stream = StreamThread(ws=ws, resp=resp)
+    thread_stream.start()
+    while not ws.closed:
+        command = ws.receive()
+        if command is not None:
+            print("Running command... %s\n" % command)
+            resp.write_stdin(command)
+
+
+@sockets.route('/echo1')
+def connect_host(ws):
+    print "Web socket is start......"
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        resp = api.read_namespaced_pod(name=name, namespace='default')
+        ssh.connect(hostname='10.108.211.13', port=22, username='root', password='root!@#456')
+    except AuthenticationException:
+        raise Exception("auth failed user:%s ,passwd:%s" %
+                        ('root', ''))
+    except SSHException:
+        raise Exception("could not connect to host:%s:%s" %
+                        ('root', ''))
 
-    except ApiException as e:
-        if e.status !=404:
-            print ("Unknown error: %s" %e)
-            exit(1)
-
-        if not resp:
-            print("Pod %s does not exits. Creating it..." % name)
-            pod_manifest = {
-                'apiVersion': 'v1',
-                'kind': 'Pod',
-                'metadata': {
-                    'name': name
-                },
-                'spec': {
-                    'containers': [{
-                        'image': 'busybox',
-                        'name': 'sleep',
-                        "args": [
-                            "/bin/sh",
-                            "-c",
-                            "while true;do date;sleep 5; done"
-                        ]
-                    }]
-                }
-            }
-            resp = api.create_namespaced_pod(body=pod_manifest,
-                                             namespace='default')
-            while True:
-                resp = api.read_namespaced_pod(name=name,
-                                               namespace='default')
-                if resp.status.phase != 'Pending':
-                    break
-                time.sleep(1)
-            print("Done.")
-
-    # calling exec and wait for response.
-    exec_command = [
-        '/bin/sh',
-        '-c',
-        'echo This message goes to stderr >&2; echo This message goes to stdout']
-    resp = stream(api.connect_get_namespaced_pod_exec, name, 'default',
-                  command=exec_command,
-                  stderr=True, stdin=False,
-                  stdout=True, tty=False)
-    print ("Response: " + resp)
-    # Calling exec interactively.
-    exec_command = ['/bin/sh']
-    resp = stream(api.connect_get_namespaced_pod_exec, name, 'default',
-                  command=exec_command,
-                  stderr=True, stdin=True,
-                  stdout=True, tty=False,
-                  _preload_content=False)
-    commands = [
-        "echo test1",
-        "echo \"This message goes to stderr\" >&2",
-    ]
-    while resp.is_open():
-        resp.update(timeout=1)
-        if resp.peek_stdout():
-            print("STDOUT: %s" % resp.read_stdout())
-        if resp.peek_stderr():
-            print("STDERR: %s" % resp.read_stderr())
-        if commands:
-            c = commands.pop(0)
-            print("Running command... %s\n" % c)
-            resp.write_stdin(c + "\n")
-        else:
-            break
-
-    resp.write_stdin("date\n")
-    resp.write_stdin("date\n")
-    sdate = resp.readline_stdout(timeout=3)
-    print("Server date command returns: %s" % sdate)
-    resp.write_stdin("whoami\n")
-    user = resp.readline_stdout(timeout=3)
-    print("Server user is: %s" % user)
-    resp.close()
+    print 'host has been connected.......'
+    chan = ssh.invoke_shell(term='xterm')
+    host = HostStreamThread(ws=ws, resp=chan)
+    host.start()
+    print 'web socket has work...... '
+    while not ws.closed:
+        command = ws.receive()
+        if command is not None:
+            print("Running command... %s\n" % command)
+            chan.send(command)
 
 
 if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=5002)
-    get_pod_exec()
+    from gevent import pywsgi
+    from geventwebsocket.handler import WebSocketHandler
+    server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
+    server.serve_forever()
+
 
