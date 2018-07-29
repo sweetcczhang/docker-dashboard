@@ -9,6 +9,7 @@ from harbor import api_versions
 from harbor import client
 from harbor import exceptions as exc
 from harbor import utils
+import confHarbor
 
 DEFAULT_API_VERSION = "2.0"
 DEFAULT_MAJOR_OS_COMPUTE_API_VERSION = "2.0"
@@ -36,3 +37,7 @@ def get_harbor_client(api_version=None, username=None, password=None, project=No
         raise exc.CommandError("Unable to authorize user '%s': %s"
                                % (username, e))
     return clients
+
+harbor = get_harbor_client(api_version=None, username=confHarbor.HARBOR_USERNAME,
+                                    password=confHarbor.HARBOR_PASSWORD,
+                                    project=confHarbor.HARBOR_PROJECT, base_url=confHarbor.HARBOR_URL)

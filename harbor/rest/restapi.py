@@ -9,7 +9,7 @@ import logging
 
 
 from harbor import utils
-from harbor import rest
+from harbor.rest import harbor as harbor_client
 
 import confHarbor
 from flask import request, jsonify, Blueprint
@@ -19,14 +19,30 @@ logger = logging.getLogger(__name__)
 harbors = Blueprint('restapi', __name__)
 
 
+def do_search():
+    """Search for projects and repositories."""
+    return_model = {}
+    query = request.args.get('query')
+
+    if not query or query is None:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = 'fail'
+        return_model['reason'] = '請填寫參數'
+        return_model['data'] = None
+        return jsonify(return_model)
+
+    data = harbor_client.searcher.search(query)
+    logger.info("Find %d Projects: " % len(data['project']))
+    logger.info("Find %d Repositories: " % len(data['repository']))
+    return jsonify(return_model)
+
+
 @harbors.route('/showProjectDetail')
 def show_project_detail():
-    """Show specific repository detail infomation."""
+    """Show specific repository detail information."""
     return_model = {}
-    harbor = rest.get_harbor_client(api_version=None, username=confHarbor.HARBOR_USERNAME,
-                                    password=confHarbor.HARBOR_PASSWORD,
-                                    project=confHarbor.HARBOR_PROJECT, base_url=confHarbor.HARBOR_URL)
-    project = request.args.get('project', harbor.client.project)
+
+    project = request.args.get('project', harbor_client.client.project)
     repo = request.args.get('repository')
     tag_index = repo.find(':')
     if tag_index != -1:
@@ -36,7 +52,7 @@ def show_project_detail():
         tag = "latest"
     if repo.find('/') == -1:
         repo = "library/" + repo
-    repos = harbor.repositories.list(project)
+    repos = harbor_client.repositories.list(project)
     found_repo = None
     for r in repos:
         if r['name'] == repo:
@@ -48,7 +64,7 @@ def show_project_detail():
         return_model['retDesc'] = 'fail'
         return_model['reason'] = "Image" + repo + "not found"
         return jsonify(return_model)
-    tags = harbor.repositories.list_tags(found_repo['name'])
+    tags = harbor_client.repositories.list_tags(found_repo['name'])
     found_tag = None
     for t in tags:
         if t['name'] == tag:
@@ -70,60 +86,19 @@ def show_project_detail():
     utils.print_dict(found_repo)
 
 
-@harbors.route('/deleteUser', methods={'POST', 'GET'})
-def delete_user():
-    username = request.args.get('username', None)
-    return_model = {}
-    harbor = rest.get_harbor_client(api_version=None, username=confHarbor.HARBOR_USERNAME,
-                                    password=confHarbor.HARBOR_PASSWORD,
-                                    project=confHarbor.HARBOR_PROJECT, base_url=confHarbor.HARBOR_URL)
-    if harbor.users.is_id(username):
-        id = username
-    else:
-        id = harbor.users.get_id_by_name(username)
-    harbor.users.delete(id)
-    print("Delete user '%s' successfully." % username)
-
-    return_model['retCode'] = 200
-    return_model['retDesc'] = 'success'
-    return_model['data'] = None
-    return jsonify(return_model)
-
-
-@harbors.route('/createUser', methods={'POST', 'GET'})
-def create_user():
-
-    username = request.form('username')
-    password = request.form('password')
-    email = request.form('email')
-    realname = request.form('realname')
-    comment = request.form('comment')
-    return_model = {}
-    harbor = rest.get_harbor_client(api_version=None, username=confHarbor.HARBOR_USERNAME,
-                                    password=confHarbor.HARBOR_PASSWORD,
-                                    project=confHarbor.HARBOR_PROJECT, base_url=confHarbor.HARBOR_URL)
-
-    harbor.users.create(username, password, email, realname, comment)
-    return_model['retCode'] = 200
-    return_model['retDesc'] = 'fail'
-    return_model['data'] = None
-    return jsonify(return_model)
-
-
 @harbors.route('/list')
 def get_image_list():
     """查詢鏡像倉庫的鏡像列表"""
     project = request.args.get('project', default=1)
-    harbor = rest.get_harbor_client(api_version=None, username=confHarbor.HARBOR_USERNAME,password=confHarbor.HARBOR_PASSWORD,
-                                    project=confHarbor.HARBOR_PROJECT, base_url=confHarbor.HARBOR_URL)
-    repositories = harbor.repositories.list(project)
+
+    repositories = harbor_client.repositories.list(project)
     return_model = {}
     data = []
     for repo in repositories:
-        tags = harbor.repositories.list_tags(repo['name'])
+        tags = harbor_client.repositories.list_tags(repo['name'])
         for tag in tags:
             item = repo.copy()
-            manifest = harbor.repositories.get_manifests(item['name'],
+            manifest = harbor_client.repositories.get_manifests(item['name'],
                                                      tag['name'])
             size = 0
 
