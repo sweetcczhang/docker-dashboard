@@ -9,6 +9,7 @@ from flask import Flask, render_template, jsonify
 from flask_sockets import Sockets
 from kube.blue import pods
 from kube.hostInfo import hosts
+from kube.service import sevices
 from kube.deployments import deploy
 from harbor.rest.restapi import harbors
 from utility.DockerTerminal import StreamThread, KubernetesClient
@@ -23,6 +24,8 @@ app.register_blueprint(pods, url_prefix='/admin')
 app.register_blueprint(hosts, url_prefix='/host')
 app.register_blueprint(deploy, url_prefix='/deploy')
 app.register_blueprint(harbors, url_prefix='/harbor')
+app.register_blueprint(sevices,url_prefix='/service')
+
 
 
 @app.route('/test1')
@@ -41,6 +44,7 @@ def test1():
     return_model = {}
     return_model['retCode'] = confHarbor.HARBOR_PASSWORD
     return_model['retDesc'] = confHarbor.HARBOR_USERNAME
+    print "sssss"
     return jsonify(return_model)
 
 
@@ -75,7 +79,7 @@ def connect_host(ws):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh.connect(hostname='10.108.211.13', port=22, username='root', password='root!@#456')
+        ssh.connect(hostname='10.108.210.194', port=22, username='root', password='root!@#456')
     except AuthenticationException:
         raise Exception("auth failed user:%s ,passwd:%s" %
                         ('root', ''))

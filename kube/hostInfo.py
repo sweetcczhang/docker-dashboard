@@ -7,7 +7,6 @@
 """
 from flask import Blueprint, jsonify
 from kubernetes.client.rest import ApiException
-from pprint import pprint
 from kube import configKube as conf
 hosts = Blueprint('hostInfo', __name__)
 
