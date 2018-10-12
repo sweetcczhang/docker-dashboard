@@ -6,7 +6,7 @@
 """
 from flask import Blueprint, jsonify, request
 from kubernetes import client
-from kube import configKube as conf
+from kube.rest import configKube as conf
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 

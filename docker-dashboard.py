@@ -7,10 +7,10 @@
 """
 from flask import Flask, render_template, jsonify
 from flask_sockets import Sockets
-from kube.blue import pods
-from kube.hostInfo import hosts
-from kube.service import sevices
-from kube.deployments import deploy
+from kube.rest.blue import pods
+from kube.rest.hostInfo import hosts
+from kube.rest.services import sevices
+from kube.rest.deployments import deploy
 from harbor.rest.restapi import harbors
 from utility.DockerTerminal import StreamThread, KubernetesClient
 from utility.HostTerminal import HostStreamThread

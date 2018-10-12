@@ -6,28 +6,49 @@
 """
 from flask import Blueprint, jsonify,request
 from kubernetes.client.rest import ApiException
-from kube import configKube as conf
+from kube.rest import configKube as conf
+
 sevices = Blueprint('service', __name__)
+
+
 
 
 @sevices.route('/create_service')
 def create_service():
     v1 = conf.get_core_v1_api()
     return_model = {}
+    #name = request.args.get('name')
+    #namespace = request.args.get('namespace', 'default')
+    name = 'example-service'
+    namespace = 'default'
+    try:
+        api_response = v1.read_namespaced_service(name=name, namespace=namespace)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = api_response
+        print return_model
+    except ApiException as e:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = 'failure'
+        return_model['data'] = None
+        print e
+
+
 
 
 @sevices.route('/get_service_detail')
 def get_service_details():
     """
-
+    获取某个service的具体信息内容
     :return:
     """
     v1 = conf.get_core_v1_api()
 
+
 @sevices.route('/get_service_by_namespace')
 def get_service_by_namespace():
     """
-
+    获取某个命名空间中所有的服务
     :return:
     """
     v1 = conf.get_core_v1_api()
@@ -115,4 +136,5 @@ def get_service_info():
 
 
 if __name__ == "__main__":
-    get_service_info()
+    create_service()
+    #get_service_info()
