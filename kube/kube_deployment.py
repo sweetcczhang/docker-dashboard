@@ -92,11 +92,85 @@ class Deployments(basic.Client):
 
         return deploy
 
-    def create_deployment(self, name, namespace):
+    def create_deployment(self, deployment, namespace='default'):
+        """
+        创建一个deployment
+        :param deployment: deployment的yaml文件
+        :param namespace: deployment所在的命名空间
+        :return:
+        """
+        try:
+            #创建一个deployment
+            api_response = self.ext_client.create_namespaced_deployment(namespace=namespace, body=deployment)
+            print ("Deployment created. status='%s'" % str(api_response.status))
+        except ApiException as e:
+            print e
+
+    def update_deployment(self, name, deployment, namespace='default'):
+        """
+        更新一个deployment
+        :param name: deployment的名称
+        :param deployment: deployment的名称
+        :param namespace: deployment的命名空间
+        :return:
+        """
+        try:
+            api_response = self.ext_client.patch_namespaced_deployment(name=name,namespace=namespace,body=deployment)
+            print ("Deployment updated. status='%s'" % str(api_response.status))
+        except ApiException as e:
+            print e
+
+    def delete_deployment(self, name, namespace='default'):
+
+        try:
+            api_response = self.ext_client.delete_namespaced_deployment(name=name,
+                                                                        namespace=namespace,
+                                                                        body=client.V1DeleteOptions(propagation_policy='Foreground',
+                                                                                                    grace_period_seconds=5))
+            print ("Deployment deleted. status='%s'" % str(api_response.status))
+        except ApiException as e:
+            print e
+
+    def create_deployment_yaml(self, name, image, namespace='default', labels=None, container_name=None, ports=None,
+                               template_labels=None, replicas=1):
+        """
+        构造一个deployment的yaml文件进行部署
+        :param name: deployment的名称
+        :param image: 需要拉取的镜像名称
+        :param namespace: 部署的命名空间
+        :param labels: deployment的标签
+        :param container_name: 容器的名字
+        :param ports: 容器的端口
+        :param template_labels: replicas的选择标签
+        :param replicas: 要部署的容器的数量
+        :return:
+        """
         deployment = client.ExtensionsV1beta1Deployment()
+        """
+        填充deployment的元数据
+        """
         deployment.api_version = "extensions/v1beta1"
         deployment.kind = "Deployment"
-        deployment.metadata = client.V1ObjectMeta()
+        deployment.metadata = client.V1ObjectMeta(name=name, labels=labels,namespace=namespace)
+        port = []
+        for p in ports:
+            port.append(client.V1ContainerPort(name=p.name, container_port=p.port, protocol=p.protocol))
+        """
+        构造容器(container)模版
+        """
+        container = client.V1Container(name=container_name, image=image, ports=port)
+        """
+        构造replicas的模版
+        """
+        template = client.V1PodTemplateSpec(metadata=client.V1ObjectMeta(labels=template_labels),
+                                            spec=client.V1PodSpec(container=[container]))
+        """
+        构造deployment的规范
+        """
+        spec = client.ExtensionsV1beta1DeploymentSpec(replicas=replicas, template=template, )
+        deployment.spec = spec
+
+        return deployment
 
 
 if __name__ == '__main__':
