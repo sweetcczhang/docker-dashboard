@@ -14,7 +14,7 @@ from kubernetes import client
 import os
 
 
-class Service(basic.Client):
+class Services(basic.Client):
 
     def get_service_info(self, namespace=None):
         """
@@ -69,7 +69,7 @@ class Service(basic.Client):
         :param selector:
         :return:
         """
-        v1 = client.CoreV1Api()
+
         service = client.V1Service()
 
         """
@@ -90,11 +90,11 @@ class Service(basic.Client):
         s_spec.ports = ports
         service.metadata = metadata
         service.spec = s_spec
-        self.v1_client.create_namespaced_service(namespace=namespace,body=service)
+        self.v1_client.create_namespaced_service(namespace=namespace, body=service)
 
     def get_service_detail(self, name, namespace='default'):
         """
-
+        获取指定的名称的service的名称
         :param name:
         :param namespace:
         :return:
@@ -113,19 +113,21 @@ class Service(basic.Client):
             hello = api_response.spec.type
             ports = api_response.spec.ports[0]
             port = ''
-            if (ports.node_port != 'None'):
+            s = ports.node_port
+            if (s != 'None'):
                 port = str(ports.node_port) + ':'
             port = port + str(ports.port) + "/TCP"
             create_time = api_response.metadata.creation_timestamp
             create_time = str(create_time)
             create_time = create_time[:len(create_time)-6]
-            service_detail = {"name": name, "namespace": namespace, "labels": labels,
-                    "cluster_ip": cluster_ip, "type": hello, "port": port, "create_time": create_time}
+            service_detail = {"name": name, "namespace": namespace, "labels": labels, "clusterIp": cluster_ip,
+                              "type": hello, "port": port, "createTime": create_time}
             print create_time
             print service_detail
         except ApiException as e:
             print e
         return service_detail
+    
 
 
 if __name__ == '__main__':
