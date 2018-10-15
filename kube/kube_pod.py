@@ -160,7 +160,6 @@ class Pods(basic.Client):
         return log
 
 
-
 if __name__ == '__main__':
     v1 = Pods()
     v1.get_all_pods()

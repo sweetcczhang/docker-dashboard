@@ -127,7 +127,6 @@ class Services(basic.Client):
         except ApiException as e:
             print e
         return service_detail
-    
 
 
 if __name__ == '__main__':
