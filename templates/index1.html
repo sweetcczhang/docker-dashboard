@@ -14,7 +14,7 @@
     let term = new Terminal({cursorBlink: true});
     term.open(document.getElementById('#terminal'));
     term.writeln("welcome to use docker web terminal!");
-    let socket = new WebSocket('ws://10.108.210.194:5000/echo1');
+    let socket = new WebSocket('ws://10.108.210.194:5001/echo1');
     term.attach(socket);
     socket.onclose = function () {
         term.writeln("closed. Thank you for use!");

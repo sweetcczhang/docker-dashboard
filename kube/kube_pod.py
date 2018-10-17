@@ -25,7 +25,7 @@ class Pods(basic.Client):
         """
         pod_detail = {}
         try:
-            api = self.v1_client.read_namespaced_pod(name=name,namespace=namespace)
+            api = self.v1_client.read_namespaced_pod(name=name, namespace=namespace)
             name = api.metadata.name
             labels = api.metadata.labels
             label = ''
@@ -60,7 +60,7 @@ class Pods(basic.Client):
             if namespace is None:
                 api_response = self.v1_client.list_pod_for_all_namespaces().items
             else:
-                api_response = self.v1_client.list_namespaced_service(namespace).items
+                api_response = self.v1_client.list_namespaced_pod(namespace=namespace)
             for api in api_response:
                 name = api.metadata.name
                 labels = api.metadata.labels
@@ -149,7 +149,7 @@ class Pods(basic.Client):
         """
         self.v1_client.create_namespaced_pod(namespace=namespace, body=pod)
 
-    def get_pod_log(self,name, namespace='default'):
+    def get_pod_log(self, name, namespace='default'):
         log = ''
         try:
             log = self.v1_client.read_namespaced_pod_log(name=name, namespace=namespace)

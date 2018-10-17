@@ -58,7 +58,7 @@ def host_terminal():
     return render_template('index1.html')
 
 
-@sockets.route('/echo')
+@sockets.route('/zcc')
 def docker_socket(ws):
     print "Web socket is start......"
     client = KubernetesClient()
@@ -102,7 +102,7 @@ def connect_host(ws):
 if __name__ == '__main__':
     from gevent import pywsgi
     from geventwebsocket.handler import WebSocketHandler
-    server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
+    server = pywsgi.WSGIServer(('', 5001), app, handler_class=WebSocketHandler)
     server.serve_forever()
 
 
