@@ -19,8 +19,8 @@ class NodeLogs(kube_logs.KubeLogs):
         # network network/rx_rate network/tx_rate
         # filesystem filesystem/usage filesystem/limit
         """
-
-        :param ip:
+        查询获取指定主机数据的使用情况：其中主要包括4中数据cpu、network、memory、filesystem
+        :param ip:特定的主机ip
         :return:
         """
 
@@ -57,6 +57,9 @@ class NodeLogs(kube_logs.KubeLogs):
         res["filesystem"]["usage"] = {}
         res["filesystem"]["limit"] = {}
 
+        """
+        cpu的使用情况
+        """
         (used, time) = self.nodequery("cpu/usage_rate",ip)
         res["cpu"]["usage_rate"].setdefault("sum", used)
         res["cpu"]["usage_rate"].setdefault("time", time)
@@ -69,6 +72,9 @@ class NodeLogs(kube_logs.KubeLogs):
         res["cpu"]["request"].setdefault("sum", used)
         res["cpu"]["request"].setdefault("time", time)
 
+        """
+        memory的使用情况
+        """
         (used, time) = self.nodequery("memory/usage", ip)
         res["memory"]["usage"].setdefault("sum", used)
         res["memory"]["usage"].setdefault("time", time)
@@ -85,6 +91,9 @@ class NodeLogs(kube_logs.KubeLogs):
         res["memory"]["working_set"].setdefault("sum", used)
         res["memory"]["working_set"].setdefault("time", time)
 
+        """
+        network的使用情况
+        """
         (used, time) = self.nodequery("network/tx_rate", ip)
         res["network"]["tx_rate"].setdefault("sum", used)
         res["network"]["tx_rate"].setdefault("time", time)
@@ -93,6 +102,9 @@ class NodeLogs(kube_logs.KubeLogs):
         res["network"]["rx_rate"].setdefault("sum", used)
         res["network"]["rx_rate"].setdefault("time", time)
 
+        """
+        filesystem的使用情况
+        """
         (used, time) = self.nodequery("filesystem/usage", ip)
         res["filesystem"]["usage"].setdefault("sum", used)
         res["filesystem"]["usage"].setdefault("time", time)

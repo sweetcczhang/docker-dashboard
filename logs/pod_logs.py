@@ -52,15 +52,22 @@ class PodLogs(kube_logs.KubeLogs):
         (used, time) = self.podquery("cpu/usage_rate", namespace, pod_name)
         res["cpu"]["usage_rate"].setdefault("sum", used)
         res["cpu"]["usage_rate"].setdefault("time", time)
-
+        """
+        cpu的使用限制
+        """
         (used, time) = self.podquery("cpu/limit", namespace, pod_name)
         res["cpu"]["limit"].setdefault("sum", used)
         res["cpu"]["limit"].setdefault("time", time)
-
+        """
+        cpu的请求量
+        """
         (used, time) = self.podquery("cpu/request", namespace, pod_name)
         res["cpu"]["request"].setdefault("sum", used)
         res["cpu"]["request"].setdefault("time", time)
 
+        """
+        memory的使用情况
+        """
         (used, time) = self.podquery("memory/usage", namespace, pod_name)
         res["memory"]["usage"].setdefault("sum", used)
         res["memory"]["usage"].setdefault("time", time)
@@ -77,6 +84,9 @@ class PodLogs(kube_logs.KubeLogs):
         res["memory"]["working_set"].setdefault("sum", used)
         res["memory"]["working_set"].setdefault("time", time)
 
+        """
+        网络的使用情况
+        """
         (used, time) = self.podquery("network/tx_rate", namespace, pod_name)
         res["network"]["tx_rate"].setdefault("sum", used)
         res["network"]["tx_rate"].setdefault("time", time)
@@ -85,6 +95,9 @@ class PodLogs(kube_logs.KubeLogs):
         res["network"]["rx_rate"].setdefault("sum", used)
         res["network"]["rx_rate"].setdefault("time", time)
 
+        """
+        文件系统的使用情况
+        """
         (used, time) = self.podquery("filesystem/usage", namespace, pod_name)
         res["filesystem"]["usage"].setdefault("sum", used)
         res["filesystem"]["usage"].setdefault("time", time)

@@ -21,8 +21,8 @@ class KubeLogs(object):
         """
         使用influxdb保存监控的时序数据。
         通过数据库名称和节点ip来查询指定主机的数据
-        :param table_name:
-        :param ip:
+        :param table_name:数据库的表名
+        :param ip:主机的ip地址
         :return:
         """
         used = []
@@ -42,10 +42,10 @@ class KubeLogs(object):
 
     def pod_query(self, table_name, namespace, pod_name):
         """
-
-        :param table_name:
-        :param namespace:
-        :param pod_name:
+        查询influxdb中保存的保存的pod监控数据，并对获取到的数据进行规格化处理
+        :param table_name:数据表的名称
+        :param namespace:命名空间
+        :param pod_name:pod的名称
         :return:
         """
         used = []

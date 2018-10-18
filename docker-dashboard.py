@@ -27,7 +27,6 @@ app.register_blueprint(harbors, url_prefix='/harbor')
 app.register_blueprint(sevices,url_prefix='/service')
 
 
-
 @app.route('/test1')
 def test():
     confHarbor.HARBOR_PASSWORD = 'sweetcc'
