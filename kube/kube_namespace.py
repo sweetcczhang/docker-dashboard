@@ -49,7 +49,6 @@ class Namespace(basic.Client):
             print e
 
 
-
 if __name__ == '__main__':
     v1 = Namespace()
     v1.list_all_namespace()
