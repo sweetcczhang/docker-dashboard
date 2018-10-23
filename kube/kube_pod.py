@@ -159,10 +159,18 @@ class Pods(basic.Client):
 
         return log
 
+    def get_pod_from_node(self, node_name):
+        field_selector = 'spec.nodeName=' + node_name
+        lists = []
+        try:
+            api_response = self.v1_client.list_pod_for_all_namespaces(field_selector=field_selector).items
+        except ApiException as e:
+            print e
+
 
 if __name__ == '__main__':
     v1 = Pods()
     v1.get_all_pods()
-    #v1.get_pod_log(name='nginx-774d74897-v7v2f')
-    #v1.get_watch(name='nginx-774d74897-v7v2f')
-    #v1.get_watch()
+    v1.get_pod_log(name='nginx-774d74897-v7v2f')
+    v1.get_watch(name='nginx-774d74897-v7v2f')
+    v1.get_watch()

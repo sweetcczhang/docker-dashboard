@@ -34,6 +34,7 @@ class ReplicasSet(basic.Client):
                 create_time = str(create_time)
                 create_time = create_time[:len(create_time) - 6]
                 labels = api.metadata.labels
+                label = ''
                 for key, value in labels.items():
                     label = label + key + '=' + value + ','
                 label = label.encode('utf-8')
@@ -44,11 +45,12 @@ class ReplicasSet(basic.Client):
             print e
 
     def get_pod_from_labels(self):
-        api_response = self.v1_client.list_namespaced_pod(namespace='default', label_selector='nginx-774d74897')
+        api_response = self.v1_client.list_namespaced_pod(namespace='default',
+                                                          field_selector='spec.nodeName=10.108.211.22').items
         print api_response
 
 
 if __name__ == '__main__':
     ext = ReplicasSet()
-    #ext.get_pod_from_labels()
-    ext.get_all_replicas_set()
+    ext.get_pod_from_labels()
+    #ext.get_all_replicas_set()
