@@ -61,28 +61,7 @@ class Pods(basic.Client):
                 api_response = self.v1_client.list_pod_for_all_namespaces().items
             else:
                 api_response = self.v1_client.list_namespaced_pod(namespace=namespace)
-            for api in api_response:
-                name = api.metadata.name
-                labels = api.metadata.labels
-                label = ''
-                for key, value in labels.items():
-                    label = label + key + '=' + value + ','
-                label = label.encode('utf-8')
-                label = label[:len(label)-1]
-                namespace = api.metadata.namespace
-                image = api.spec.containers[0].name
-                node_name = api.spec.node_name
-                status = api.status.phase
-                create_time = api.metadata.creation_timestamp
-                now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
-                days = (now_time-create_time).days
-                create_time = str(create_time)
-                create_time = create_time[:len(create_time)-6]
-                temp = {'name': name, 'label': label, 'namespace': namespace, 'image': image, 'nodeName': node_name,
-                        'status': status, 'createTime': create_time, 'days': days}
-
-                lists.append(temp)
-                print temp
+            lists = self.pod_list(api_response=api_response)
             print api_response
 
         except ApiException as e:
@@ -150,6 +129,12 @@ class Pods(basic.Client):
         self.v1_client.create_namespaced_pod(namespace=namespace, body=pod)
 
     def get_pod_log(self, name, namespace='default'):
+        """
+        获取指定pod的日志以str的形式返回
+        :param name:
+        :param namespace:
+        :return:
+        """
         log = ''
         try:
             log = self.v1_client.read_namespaced_pod_log(name=name, namespace=namespace)
@@ -159,18 +144,37 @@ class Pods(basic.Client):
 
         return log
 
-    def get_pod_from_node(self, node_name):
-        field_selector = 'spec.nodeName=' + node_name
+    def get_pod_from_label_or_field(self, label_selector=None, field_selector=None):
+        """
+        通过label_selector或者field_selector来获取符合
+        条件的pod。
+        :param label_selector:
+        :param field_selector:
+        :return:
+        """
+        field_selector = 'spec.nodeName=' + field_selector
         lists = []
+        length = 0
         try:
-            api_response = self.v1_client.list_pod_for_all_namespaces(field_selector=field_selector).items
+            if label_selector is None:
+                api_response = self.v1_client.list_pod_for_all_namespaces(field_selector=field_selector).items
+            else:
+                api_response = self.v1_client.list_pod_for_all_namespaces(label_selector=label_selector).items
+
+            length = len(api_response)
+            lists = self.pod_list(api_response=api_response)
+            print api_response
         except ApiException as e:
             print e
+
+        return length, lists
 
 
 if __name__ == '__main__':
     v1 = Pods()
-    v1.get_all_pods()
-    v1.get_pod_log(name='nginx-774d74897-v7v2f')
-    v1.get_watch(name='nginx-774d74897-v7v2f')
-    v1.get_watch()
+    print "zcc"
+    v1.get_pod_from_node(field_selector='10.108.211.22')
+    # v1.get_all_pods()
+    # v1.get_pod_log(name='nginx-774d74897-v7v2f')
+    # v1.get_watch(name='nginx-774d74897-v7v2f')
+    # v1.get_watch()

@@ -52,5 +52,5 @@ class ReplicasSet(basic.Client):
 
 if __name__ == '__main__':
     ext = ReplicasSet()
-    ext.get_pod_from_labels()
-    #ext.get_all_replicas_set()
+    #ext.get_pod_from_labels()
+    ext.get_all_replicas_set()
