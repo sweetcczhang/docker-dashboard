@@ -22,13 +22,13 @@ class Services(basic.Client):
         :param namespace:
         :return:
         """
-        lists =[]
+        lists = []
         try:
             if namespace is None:
-                sevices_list = self.v1_client.list_service_for_all_namespaces().items
+                services_list = self.v1_client.list_service_for_all_namespaces().items
             else:
-                sevices_list = self.v1_client.list_namespaced_service(namespace=namespace)
-            for i in sevices_list:
+                services_list = self.v1_client.list_namespaced_service(namespace=namespace)
+            for i in services_list:
                 name = i.metadata.name
                 namespace = i.metadata.namespace
                 label = i.metadata.labels
@@ -40,7 +40,7 @@ class Services(basic.Client):
                 hello = i.spec.type
                 ports = i.spec.ports[0]
                 port = ''
-                if (ports.node_port != 'None'):
+                if ports.node_port != 'None':
                     port = str(ports.node_port) + ':'
                 port = port + str(ports.port) + "/TCP"
                 temp = {"name": name, "namespace": namespace, "labels": labels,
@@ -114,7 +114,7 @@ class Services(basic.Client):
             ports = api_response.spec.ports[0]
             port = ''
             s = ports.node_port
-            if (s != 'None'):
+            if s != 'None':
                 port = str(ports.node_port) + ':'
             port = port + str(ports.port) + "/TCP"
             create_time = api_response.metadata.creation_timestamp

@@ -26,24 +26,8 @@ class Pods(basic.Client):
         pod_detail = {}
         try:
             api = self.v1_client.read_namespaced_pod(name=name, namespace=namespace)
-            name = api.metadata.name
-            labels = api.metadata.labels
-            label = ''
-            for key, value in labels.items():
-                label = label + key + '=' + value + ','
-            label = label.encode('utf-8')
-            label = label[:len(label) - 1]
-            namespace = api.metadata.namespace
-            image = api.spec.containers[0].name
-            node_name = api.spec.node_name
-            status = api.status.phase
-            create_time = api.metadata.creation_timestamp
-            now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
-            days = (now_time - create_time).days
-            create_time = str(create_time)
-            create_time = create_time[:len(create_time) - 6]
-            pod_detail = {'name': name, "label": label, 'namespace': namespace, 'image': image, 'nodeName': node_name,
-                          'status': status, 'createTime': create_time, 'days': days}
+
+            pod_detail = self.pod_detail(pod=api)
 
         except ApiException as e:
             print e
@@ -144,12 +128,14 @@ class Pods(basic.Client):
 
         return log
 
-    def get_pod_from_label_or_field(self, label_selector=None, field_selector=None):
+    def get_pod_from_label_or_field(self, label_selector=None, field_selector=None,
+                                    namespace='default'):
         """
         通过label_selector或者field_selector来获取符合
         条件的pod。
         :param label_selector:
         :param field_selector:
+        :param namespace:
         :return:
         """
         field_selector = 'spec.nodeName=' + field_selector
@@ -159,7 +145,8 @@ class Pods(basic.Client):
             if label_selector is None:
                 api_response = self.v1_client.list_pod_for_all_namespaces(field_selector=field_selector).items
             else:
-                api_response = self.v1_client.list_pod_for_all_namespaces(label_selector=label_selector).items
+                api_response = self.v1_client.list_namespaced_pod(namespace=namespace,
+                                                                  label_selector=label_selector).items
 
             length = len(api_response)
             lists = self.pod_list(api_response=api_response)

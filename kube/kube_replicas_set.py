@@ -9,15 +9,17 @@
 """
 from kube import basic
 from kubernetes.client.rest import ApiException
-from kubernetes import client
-from datetime import datetime
-import pytz
 
 
 class ReplicasSet(basic.Client):
 
     def get_all_replicas_set(self, namespace=None):
-
+        """
+        获取指定命名空间中的所有的replicas set，若namespace为None则查询所有的命名空间
+        中的replicas set
+        :param namespace:
+        :return:
+        """
         lists = []
         try:
             if namespace is None:
@@ -25,29 +27,40 @@ class ReplicasSet(basic.Client):
             else:
                 api_response = self.ext_client.list_namespaced_replica_set(namespace=namespace).items
 
-            for api in api_response:
-                name = api.metadata.name
-                space = api.metadata.namespace
-                create_time = api.metadata.creation_timestamp
-                now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
-                days = (now_time - create_time).days
-                create_time = str(create_time)
-                create_time = create_time[:len(create_time) - 6]
-                labels = api.metadata.labels
-                label = ''
-                for key, value in labels.items():
-                    label = label + key + '=' + value + ','
-                label = label.encode('utf-8')
-                label = label[:len(label)-1]
+            lists = self.replicas_set_list(api_response=api_response)
 
             print api_response
         except ApiException as e:
             print e
+        return lists
 
-    def get_pod_from_labels(self):
-        api_response = self.v1_client.list_namespaced_pod(namespace='default',
-                                                          field_selector='spec.nodeName=10.108.211.22').items
-        print api_response
+    def delete_replicas_set(self, name, namespace='default'):
+        """
+        删除指定命名空间中指定名称的replicas set
+        :param name:
+        :param namespace:
+        :return:
+        """
+        try:
+            self.ext_client.delete_namespaced_replica_set(name=name, namespace=namespace)
+        except ApiException as e:
+            print e
+
+    def get_replicas_set_from_labels(self, label_selector, namespace='default'):
+        """
+        通过label selector来查询 replicas set 供 deployment使用
+        :param label_selector:
+        :param namespace:
+        :return:
+        """
+        lists = {}
+        try:
+            api_response = self.ext_client.list_namespaced_replica_set(namespace=namespace,
+                                                                       label_selector=label_selector).items
+            lists = self.replicas_set_detail(api_response)
+        except ApiException as e:
+            print e
+        return lists
 
 
 if __name__ == '__main__':

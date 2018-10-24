@@ -52,12 +52,36 @@ class Client(object):
             lists.append(temp)
         return lists
 
-
     def replicas_set_detail(self, replicas_set):
+        name = replicas_set.metadata.name
+        space = replicas_set.metadata.namespace
+        create_time = replicas_set.metadata.creation_timestamp
+        now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
+        days = (now_time - create_time).days
+        create_time = str(create_time)
+        create_time = create_time[:len(create_time) - 6]
+        labels = replicas_set.metadata.labels
+        label = ''
+        for key, value in labels.items():
+            label = label + key.encode('utf-8') + ":" + value + ","
+        label = label[:len(label) - 1]
+        replicas = replicas_set.spec.replicas
+        selectors = replicas_set.spec.selector.match_labels
+        selector = ''
+        for key, value in selectors.items():
+            selector = selector + key.encode('utf-8') + ':' + value + ','
+        selector = selector[:len(selector) - 1]
+        image = replicas_set.spec.template.spec.containers[0].image
+        available_replicas = replicas_set.status.available_replicas
+        temp = {'name': name, 'namespace': space, 'days': days, 'createTime': create_time,
+                'label': label, 'replicas': replicas, 'selector': selector, 'image': image,
+                'availableReplicas': available_replicas}
 
-        return replicas_set
+        return temp
 
     def replicas_set_list(self, api_response):
         lists = []
-
-        return list
+        for api in api_response:
+            temp = self.replicas_set_detail(api)
+            lists.append(temp)
+        return lists
