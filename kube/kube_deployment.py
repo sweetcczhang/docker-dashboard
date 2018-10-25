@@ -16,7 +16,7 @@ from kubernetes import client
 
 class Deployments(basic.Client):
 
-    def get_all_deployment(self, namespace=None):
+    def get_all_deployment(self, page=1, limit=10, namespace=None):
         """
         获取指定命名空间中所有的deployment或者所有命名空间中的deployment
         :param namespace:
@@ -25,9 +25,9 @@ class Deployments(basic.Client):
         deploy_list = []
         try:
             if namespace is None:
-                deploy = self.ext_client.list_deployment_for_all_namespaces()
+                deploy = self.ext_client.list_deployment_for_all_namespaces(_continue=page, limit=limit)
             else:
-                deploy = self.ext_client.list_namespaced_deployment(namespace)
+                deploy = self.ext_client.list_namespaced_deployment(_continue=page, limit=limit, namespace=namespace)
             for i in deploy.items:
                 # print i.metadata.name
                 name = i.metadata.name

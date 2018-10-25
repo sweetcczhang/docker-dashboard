@@ -36,3 +36,8 @@ def get_extensions():
     config_kube()
     extension = client.ExtensionsV1beta1Api()
     return extension
+
+
+def get_role_client():
+    config_kube()
+    role_client = client.RbacAuthorizationV1beta1Api()

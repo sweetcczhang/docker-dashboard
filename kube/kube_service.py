@@ -16,18 +16,20 @@ import os
 
 class Services(basic.Client):
 
-    def get_service_info(self, namespace=None):
+    def get_service_info(self, page=1, limit=10, namespace=None):
         """
-
+        获取指定命名空间的所有service，当namespace为空的时候，获取所有命名空间的数据
+        :param page:
+        :param limit:
         :param namespace:
         :return:
         """
         lists = []
         try:
             if namespace is None:
-                services_list = self.v1_client.list_service_for_all_namespaces().items
+                services_list = self.v1_client.list_service_for_all_namespaces(_continue=page, limit=limit).items
             else:
-                services_list = self.v1_client.list_namespaced_service(namespace=namespace)
+                services_list = self.v1_client.list_namespaced_service(namespace=namespace, _continue=page, limit=limit)
             for i in services_list:
                 name = i.metadata.name
                 namespace = i.metadata.namespace
@@ -124,6 +126,16 @@ class Services(basic.Client):
                               "type": hello, "port": port, "createTime": create_time}
             print create_time
             print service_detail
+        except ApiException as e:
+            print e
+        return service_detail
+
+    def get_service_from_label_selector(self, label_selector):
+        service_detail = {}
+        try:
+            api_response = self.v1_client.list_service_for_all_namespaces(label_selector=label_selector)
+            service_detail = self.service_detail(api_response)
+
         except ApiException as e:
             print e
         return service_detail

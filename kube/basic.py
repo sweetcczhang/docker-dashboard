@@ -17,12 +17,16 @@ class Client(object):
     def __init__(self):
         self.v1_client = conf.get_core_v1_api()
         self.ext_client = conf.get_extensions()
+        self.role_client = conf.get_role_client()
 
     def v1_client(self):
         return self.v1_client
 
     def ext_client(self):
         return self.ext_client
+
+    def role_client(self):
+        return self.role_client
 
     def pod_detail(self, pod):
         name = pod.metadata.name
@@ -84,4 +88,56 @@ class Client(object):
         for api in api_response:
             temp = self.replicas_set_detail(api)
             lists.append(temp)
+        return lists
+
+    def service_detail(self, service):
+
+        name = service.metadata.name
+        namespace = service.metadata.namespace
+        label = service.metadata.labels
+        labels = ''
+        for key, value in label.items():
+            labels = labels + key + '=' + value + ','
+        labels = labels.encode('utf-8')
+        cluster_ip = service.spec.cluster_ip
+        hello = service.spec.type
+        ports = service.spec.ports[0]
+        port = ''
+        s = ports.node_port
+        if s != 'None':
+            port = str(ports.node_port) + ':'
+        port = port + str(ports.port) + "/TCP"
+        create_time = service.metadata.creation_timestamp
+        create_time = str(create_time)
+        create_time = create_time[:len(create_time) - 6]
+        service_detail = {"name": name, "namespace": namespace, "labels": labels, "clusterIp": cluster_ip,
+                          "type": hello, "port": port, "createTime": create_time}
+
+        return service_detail
+
+    def service_list(self, api_response):
+        lists = []
+        for service in api_response:
+            name = service.metadata.name
+            namespace = service.metadata.namespace
+            label = service.metadata.labels
+            labels = ''
+            for key, value in label.items():
+                labels = labels + key + '=' + value + ','
+            labels = labels.encode('utf-8')
+            cluster_ip = service.spec.cluster_ip
+            hello = service.spec.type
+            ports = service.spec.ports[0]
+            port = ''
+            s = ports.node_port
+            if s != 'None':
+                port = str(ports.node_port) + ':'
+            port = port + str(ports.port) + "/TCP"
+            create_time = service.metadata.creation_timestamp
+            create_time = str(create_time)
+            create_time = create_time[:len(create_time) - 6]
+            service_detail = {"name": name, "namespace": namespace, "labels": labels, "clusterIp": cluster_ip,
+                              "type": hello, "port": port, "createTime": create_time}
+            lists.append(service_detail)
+
         return lists

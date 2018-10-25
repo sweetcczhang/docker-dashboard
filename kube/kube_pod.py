@@ -33,18 +33,21 @@ class Pods(basic.Client):
             print e
         return pod_detail
 
-    def get_all_pods(self, namespace=None):
+    def get_all_pods(self, page=1, limit=1, namespace=None):
         """
         列出指定的命名空间中的所有pod或者是所有命名空间中的pod
+        :param page:
+        :param limit:
         :param namespace:
         :return:
         """
         lists = []
         try:
             if namespace is None:
-                api_response = self.v1_client.list_pod_for_all_namespaces().items
+                api_response = self.v1_client.list_pod_for_all_namespaces(_continue=page, limit=limit).items
             else:
-                api_response = self.v1_client.list_namespaced_pod(namespace=namespace)
+                api_response = self.v1_client.list_namespaced_pod(_continue=page, limit=limit,
+                                                                  namespace=namespace).items
             lists = self.pod_list(api_response=api_response)
             print api_response
 
