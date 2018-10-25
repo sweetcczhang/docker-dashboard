@@ -5,3 +5,26 @@
 # @Author : 张城城
 """
 
+from kube.kube_hostInfo import HostInfo
+
+from kube.kube_deployment import Deployments
+
+from kube.kube_namespace import Namespace
+
+from kube.kube_pod import Pods
+
+from kube.kube_service import Services
+
+from kube.kube_replicas_set import ReplicasSet
+
+hostInfo = HostInfo()
+
+deploy = Deployments()
+
+name_space = Namespace()
+
+pods = Pods()
+
+service = Services()
+
+replicas_set = ReplicasSet()

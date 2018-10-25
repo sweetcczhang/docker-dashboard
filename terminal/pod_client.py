@@ -24,9 +24,8 @@ class KubernetesClient(object):
         Configuration.set_default(c)
         self.api = core_v1_api.CoreV1Api()
 
-    def get_pod_exec(self):
+    def get_pod_exec(self, name):
         api = self.api
-        name = 'busybox-test1'
         resp = None
         try:
             resp = api.read_namespaced_pod(name=name, namespace='default')

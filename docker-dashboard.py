@@ -5,15 +5,17 @@
 # @Time   : 2018/7/18 22:55
 # @Author : 张城城
 """
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_sockets import Sockets
 from kube.rest.blue import pods
 from kube.rest.hostInfo import hosts
 from kube.rest.services import sevices
 from kube.rest.deployments import deploy
 from harbor.rest.restapi import harbors
-from utility.DockerTerminal import StreamThread, KubernetesClient
-from utility.HostTerminal import HostStreamThread
+from terminal.pod_client import KubernetesClient
+from terminal.pod_stream_thread import StreamThread
+from terminal.host_stream_thread import HostStreamThread
+from terminal.host_client import HostClient
 import paramiko
 from paramiko.ssh_exception import AuthenticationException, SSHException
 import confHarbor
@@ -59,9 +61,15 @@ def host_terminal():
 
 @sockets.route('/zcc')
 def docker_socket(ws):
+    """
+    pod容器的web terminal
+    :param ws:
+    :return:
+    """
     print "Web socket is start......"
+    pod_name = request.args.get("name")
     client = KubernetesClient()
-    resp = client.get_pod_exec()
+    resp = client.get_pod_exec(name=pod_name)
     print 'pod has been created.......'
     thread_stream = StreamThread(ws=ws, resp=resp)
     thread_stream.start()
@@ -74,20 +82,15 @@ def docker_socket(ws):
 
 @sockets.route('/echo1')
 def connect_host(ws):
-    print "Web socket is start......"
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        ssh.connect(hostname='10.108.210.194', port=22, username='root', password='root!@#456')
-    except AuthenticationException:
-        raise Exception("auth failed user:%s ,passwd:%s" %
-                        ('root', ''))
-    except SSHException:
-        raise Exception("could not connect to host:%s:%s" %
-                        ('root', ''))
-
-    print 'host has been connected.......'
-    chan = ssh.invoke_shell(term='xterm')
+    """
+    主机的web terminal
+    :param ws:
+    :return:
+    """
+    print request.args.get('host')
+    hostname = request.args.get('host', '10.108.210.194')
+    host_client = HostClient()
+    chan = host_client.get_invoke_shell(hostname=hostname)
     host = HostStreamThread(ws=ws, resp=chan)
     host.start()
     print 'web socket has work...... '

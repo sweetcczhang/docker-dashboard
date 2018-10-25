@@ -11,7 +11,6 @@
 
 from kube import basic
 from kubernetes.client.rest import ApiException
-from kubernetes import client
 from datetime import datetime
 import pytz
 
@@ -51,7 +50,7 @@ class HostInfo(basic.Client):
         except ApiException as e:
             print e
 
-        return node_list
+        return len(node_list), node_list
 
     def host_detail(self, host_name):
         try:
