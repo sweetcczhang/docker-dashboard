@@ -23,6 +23,8 @@ class HostInfo(basic.Client):
         :return:
         """
         node_list = []
+        ready_num = 0
+        not_ready_num = 0
         try:
             host = self.v1_client.list_node()
             print len(host.items)
@@ -43,6 +45,9 @@ class HostInfo(basic.Client):
                 status_1 = i.status.conditions[-1].status
                 if status_1 == 'True':
                     status = 'Ready'
+                    ready_num = ready_num + 1
+                else:
+                    not_ready_num = not_ready_num + 1
                 temp = {'name': name, 'hostIp': host_ip, 'status': status, 'os': os, 'dockerVersion': docker_version,
                         'cpu': cpu, 'memory': memory, 'createTime': create_time}
                 node_list.append(temp)
@@ -50,7 +55,7 @@ class HostInfo(basic.Client):
         except ApiException as e:
             print e
 
-        return len(node_list), node_list
+        return len(node_list), node_list, ready_num, not_ready_num
 
     def host_detail(self, host_name):
         try:

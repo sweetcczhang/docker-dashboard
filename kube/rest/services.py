@@ -8,7 +8,7 @@ from flask import Blueprint, jsonify,request
 from kubernetes.client.rest import ApiException
 from kube.rest import configKube as conf
 
-sevices = Blueprint('service', __name__)
+sevices = Blueprint('services', __name__)
 
 
 

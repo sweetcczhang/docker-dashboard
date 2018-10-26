@@ -37,7 +37,7 @@ def get_host_info():
 
 
 @hosts.route('/getHostDetail')
-def get_host_info():
+def get_host_detail():
     """
     获取主机详细信息
     :return:
@@ -46,11 +46,12 @@ def get_host_info():
     host_name = request.args.get(key='hostName', default=None)
     try:
         host_detail = hostInfo.host_detail(host_name=host_name)
-
+        pod_info = pods.get_pod_from_label_or_field(field_selector=host_name)
         if host_detail is not None:
             return_model['retCode'] = 200
             return_model['retDesc'] = 'success'
-            data = {'hostInfo': host_detail[1], 'conditions': host_detail[0]}
+            data = {'hostInfo': host_detail[1], 'conditions': host_detail[0], 'podNum': pod_info[0],
+                    'podsList': pod_info[1]}
             return_model['data'] = data
         else:
             return_model['retCode'] = 500
@@ -59,3 +60,5 @@ def get_host_info():
     except Exception as e:
         print e
     return return_model
+
+

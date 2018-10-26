@@ -7,3 +7,11 @@
 # @FileName: __init__.py.py
 # @Github  : https://github.com/sweetcczhang
 """
+
+from logs.node_logs import NodeLogs
+
+from logs.pod_logs import PodLogs
+
+nodeLogs = NodeLogs()
+
+podLogs = PodLogs()

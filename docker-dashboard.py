@@ -16,8 +16,7 @@ from terminal.pod_client import KubernetesClient
 from terminal.pod_stream_thread import StreamThread
 from terminal.host_stream_thread import HostStreamThread
 from terminal.host_client import HostClient
-import paramiko
-from paramiko.ssh_exception import AuthenticationException, SSHException
+from logs.restful.logs_info import logs
 import confHarbor
 
 app = Flask(__name__)
@@ -26,8 +25,8 @@ app.register_blueprint(pods, url_prefix='/admin')
 app.register_blueprint(hosts, url_prefix='/host')
 app.register_blueprint(deploy, url_prefix='/deploy')
 app.register_blueprint(harbors, url_prefix='/harbor')
-app.register_blueprint(sevices,url_prefix='/service')
-
+app.register_blueprint(sevices, url_prefix='/service')
+app.register_blueprint(logs, url_prefix='/log')
 
 @app.route('/test1')
 def test():
