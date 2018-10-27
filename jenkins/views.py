@@ -1,9 +1,4 @@
-from django.shortcuts import render
-
-# Create your views here.
-# coding:utf-8
-
-
+# _*_ coding:utf-8 _*_
 import json
 import jenkinsJob
 import jenkins
@@ -11,12 +6,7 @@ import xml.dom.minidom
 
 from flask import jsonify
 
-jks=jenkinsJob.jenkinsJob('http://10.108.210.227:9999','admin','root!@#456')
-
-
-def index(request):
-    return render(request, 'controller/index.html')
-
+jks = jenkinsJob.jenkinsJob('http://10.108.210.227:9999','admin','root!@#456')
 
 
 
