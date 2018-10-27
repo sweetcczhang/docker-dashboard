@@ -16,28 +16,27 @@ import os
 
 class Services(basic.Client):
 
-    def get_service_info(self, page=1, limit=10, namespace=None):
+    def get_service_info(self, namespace=None):
         """
         获取指定命名空间的所有service，当namespace为空的时候，获取所有命名空间的数据
-        :param page:
-        :param limit:
         :param namespace:
         :return:
         """
         lists = []
         try:
             if namespace is None:
-                services_list = self.v1_client.list_service_for_all_namespaces(_continue=page, limit=limit).items
+                services_list = self.v1_client.list_service_for_all_namespaces().items
             else:
-                services_list = self.v1_client.list_namespaced_service(namespace=namespace, _continue=page, limit=limit)
+                services_list = self.v1_client.list_namespaced_service(namespace=namespace,).items
             for i in services_list:
                 name = i.metadata.name
                 namespace = i.metadata.namespace
                 label = i.metadata.labels
                 labels = ''
-                for key, value in label.items():
-                    labels = labels + key + '=' + value + ','
-                labels = labels.encode('utf-8')
+                if label is not None:
+                    for key, value in label.items():
+                        labels = labels + key + '=' + value + ','
+                    labels = labels.encode('utf-8')
                 cluster_ip = i.spec.cluster_ip
                 hello = i.spec.type
                 ports = i.spec.ports[0]
@@ -52,7 +51,7 @@ class Services(basic.Client):
         except ApiException as e:
             print e
 
-        return lists
+        return len(lists), lists
 
     def create_service(self, name, labels, port=80, namespace='default', node_port=None, protocol='TCP', port_type=None,
                        selector=None):
@@ -142,7 +141,8 @@ class Services(basic.Client):
 
 
 if __name__ == '__main__':
-    # v1 =Service()
+    v1 = Services()
+    v1.get_service_info()
     # v1.get_service_detail(name='example-service')
-    basepath = os.path.dirname(__file__)
-    print basepath
+    # basepath = os.path.dirname(__file__)
+    # print basepath

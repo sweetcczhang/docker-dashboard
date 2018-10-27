@@ -11,7 +11,6 @@ import logging
 from harbor import utils
 from harbor.rest import harbor as harbor_client
 
-import confHarbor
 from flask import request, jsonify, Blueprint
 
 logger = logging.getLogger(__name__)
@@ -90,9 +89,10 @@ def show_project_detail():
 def get_image_list():
     """查詢鏡像倉庫的鏡像列表"""
     project = request.args.get('project', default=1)
-
+    #project = 1
     repositories = harbor_client.repositories.list(project)
     return_model = {}
+
     data = []
     for repo in repositories:
         tags = harbor_client.repositories.list_tags(repo['name'])
@@ -108,11 +108,13 @@ def get_image_list():
 
             if tag['name'] != 'latest':
                 item['name'] = repo['name'] + ":" + tag['name']
+            item['labels'].append(tag['name'])
             data.append(item)
 
+    result = {'length': len(data), 'images': data}
     return_model['retCode'] = 200
     return_model['retDesc'] = 'success'
-    return_model['data'] = data
+    return_model['data'] = result
 
     fields = [
         "name", 'project_id', 'size',
@@ -120,7 +122,6 @@ def get_image_list():
         "update_time"
     ]
     utils.print_list(data, fields)
-
     return jsonify(return_model)
 
 

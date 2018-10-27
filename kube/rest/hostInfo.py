@@ -9,6 +9,9 @@ from flask import Blueprint, jsonify, request
 
 from kube import hostInfo
 from kube import pods
+from kube import service
+from kube import deploy
+from harbor.rest import harbor as harbor_client
 
 hosts = Blueprint('hostInfo', __name__)
 
@@ -60,5 +63,33 @@ def get_host_detail():
     except Exception as e:
         print e
     return return_model
+
+
+@hosts.route('/getClusterInfo')
+def get_all_cluster_info():
+    return_model = {}
+    pod_list = pods.get_all_pods()
+    deploy_list = deploy.get_all_deployment()
+    service_list = service.get_service_info()
+    node_list = hostInfo.get_host_info()
+    repositries = harbor_client.repositories.list(1)
+    data = {
+        'hosts': {
+            'hostNum': node_list[0],
+            'readyNum': node_list[2],
+            'notReadyNum': node_list[3]
+        },
+        'pods': {
+            'readyNum': pod_list[0],
+            'notReadyNum': 0
+        },
+        'deployNum': deploy_list[0],
+        'serviceNum': service_list[0],
+        'repoNum': len(repositries)
+    }
+    return_model['retCode'] = 200
+    return_model['retDesc'] = 'success'
+    return_model['data'] = data
+    return jsonify(return_model)
 
 

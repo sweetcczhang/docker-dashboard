@@ -33,28 +33,25 @@ class Pods(basic.Client):
             print e
         return pod_detail
 
-    def get_all_pods(self, page=1, limit=1, namespace=None):
+    def get_all_pods(self, namespace=None):
         """
         列出指定的命名空间中的所有pod或者是所有命名空间中的pod
-        :param page:
-        :param limit:
         :param namespace:
         :return:
         """
         lists = []
         try:
             if namespace is None:
-                api_response = self.v1_client.list_pod_for_all_namespaces(_continue=page, limit=limit).items
+                api_response = self.v1_client.list_pod_for_all_namespaces().items
             else:
-                api_response = self.v1_client.list_namespaced_pod(_continue=page, limit=limit,
-                                                                  namespace=namespace).items
+                api_response = self.v1_client.list_namespaced_pod(namespace=namespace).items
             lists = self.pod_list(api_response=api_response)
             print api_response
 
         except ApiException as e:
             print e
 
-        return lists
+        return len(lists), lists
 
     def get_watch(self, name, namespace='default'):
         w = watch.Watch()
@@ -163,8 +160,8 @@ class Pods(basic.Client):
 if __name__ == '__main__':
     v1 = Pods()
     print "zcc"
-    v1.get_pod_from_node(field_selector='10.108.211.22')
-    # v1.get_all_pods()
+    #v1.get_pod_from_node(field_selector='10.108.211.22')
+    v1.get_all_pods()
     # v1.get_pod_log(name='nginx-774d74897-v7v2f')
     # v1.get_watch(name='nginx-774d74897-v7v2f')
     # v1.get_watch()

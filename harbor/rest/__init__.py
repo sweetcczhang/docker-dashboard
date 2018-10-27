@@ -38,7 +38,7 @@ def get_harbor_client(api_version=None, username=None, password=None, project=No
                                % (username, e))
     return clients
 
-# harbor = get_harbor_client(api_version=None, username=confHarbor.HARBOR_USERNAME,
-#                                     password=confHarbor.HARBOR_PASSWORD,
-#                                     project=confHarbor.HARBOR_PROJECT, base_url=confHarbor.HARBOR_URL)
-harbor = ''
+
+harbor = get_harbor_client(api_version=None, username=confHarbor.HARBOR_USERNAME,
+                                    password=confHarbor.HARBOR_PASSWORD,
+                                    project=confHarbor.HARBOR_PROJECT, base_url=confHarbor.HARBOR_URL)

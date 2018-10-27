@@ -32,10 +32,11 @@ class Client(object):
         name = pod.metadata.name
         labels = pod.metadata.labels
         label = ''
-        for key, value in labels.items():
-            label = label + key + '=' + value + ','
-        label = label.encode('utf-8')
-        label = label[:len(label) - 1]
+        if labels is not None:
+            for key, value in labels.items():
+                label = label + key + '=' + value + ','
+            label = label.encode('utf-8')
+            label = label[:len(label) - 1]
         namespace = pod.metadata.namespace
         image = pod.spec.containers[0].name
         node_name = pod.spec.node_name
@@ -139,5 +140,6 @@ class Client(object):
             service_detail = {"name": name, "namespace": namespace, "labels": labels, "clusterIp": cluster_ip,
                               "type": hello, "port": port, "createTime": create_time}
             lists.append(service_detail)
+
 
         return lists
