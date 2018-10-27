@@ -12,7 +12,9 @@ from kube import pods
 from kube import service
 from kube import deploy
 from harbor.rest import harbor as harbor_client
-
+from werkzeug.utils import secure_filename
+import os
+from yamls_location_config import YAML_LOC
 hosts = Blueprint('hostInfo', __name__)
 
 
@@ -91,5 +93,15 @@ def get_all_cluster_info():
     return_model['retDesc'] = 'success'
     return_model['data'] = data
     return jsonify(return_model)
+
+
+@hosts.route('/yaml', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        files = request.files['file']
+        filename = secure_filename(files.filename)
+        files.save(os.path.join(YAML_LOC, filename))
+
+
 
 

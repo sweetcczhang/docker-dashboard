@@ -17,6 +17,8 @@ from kube.kube_service import Services
 
 from kube.kube_replicas_set import ReplicasSet
 
+from kube.create_from_yaml import YamlCreate
+
 hostInfo = HostInfo()
 
 deploy = Deployments()
@@ -28,3 +30,5 @@ pods = Pods()
 service = Services()
 
 replicas_set = ReplicasSet()
+
+file_create = YamlCreate()

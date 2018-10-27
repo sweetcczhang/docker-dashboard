@@ -23,7 +23,7 @@ def getVersion():
 
 
 def addJobOld():
-    if (request.method == 'POST'):
+    if request.method == 'POST':
         jobname = request.POST.get("jobname")
         # TODO根据数据自定义XML
         result = {'result': jks.createJob(jobname, jenkins.EMPTY_CONFIG_XML)}

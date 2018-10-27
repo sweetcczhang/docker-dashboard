@@ -48,7 +48,7 @@ def test1():
     return jsonify(return_model)
 
 
-@app.route('/docker')
+@app.route('/docker', methods=['GET', 'POST'])
 def docker_terminal():
     return render_template('index.html')
 
