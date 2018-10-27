@@ -4,19 +4,18 @@ import jenkinsJob
 import jenkins
 import xml.dom.minidom
 
-from flask import jsonify
+from flask import jsonify,request
 
 jks = jenkinsJob.jenkinsJob('http://10.108.210.227:9999','admin','root!@#456')
 
 
 
-def getVersion(request):
+def getVersion():
     version=jks.getVersion()
     result={'version':version}
     return jsonify(result)
 
-#request.POST.get("<name>")
-def addJobOld(request):
+def addJobOld():
     if(request.method == 'POST'):
         jobname=request.POST.get("jobname")
         #TODO根据数据自定义XML
@@ -30,7 +29,7 @@ def addJobOld(request):
     #return HttpResponse(json.dumps(result ), content_type="application/json")
 
 
-def deleteJob(request):
+def deleteJob():
     if request.method == 'POST':
         jobname=request.POST.get("jobname")
         result={'result':jks.deleteJob(jobname)}
@@ -40,7 +39,8 @@ def deleteJob(request):
         result={'result':jks.deleteJob(jobname)}
         return jsonify(result)
 
-def buildJob(request):
+
+def buildJob():
     if(request.method == 'POST'):
         jobname=request.POST.get("jobname")
         result={'result':jks.buildJob(jobname)}
@@ -49,6 +49,7 @@ def buildJob(request):
         jobname=request.GET['jobname']
         result={'result':jks.buildJob(jobname)}
         return jsonify(result)
+
 
 def getBuildLog(request):
     if(request.method == 'POST'):
@@ -71,7 +72,7 @@ def getJobXml(request):
     return jsonify(result,content_type='text/xml')
 
 
-def addJob(request):
+def addJob():
     pass
     #获取参数 None=null
     if request.method == 'POST':
