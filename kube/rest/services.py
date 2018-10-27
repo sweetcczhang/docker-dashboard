@@ -71,7 +71,7 @@ def get_service_by_namespace():
             ports = svc.spec.ports[0]
             port = ''
             s = ports.node_port
-            if (s != 'None'):
+            if s != 'None':
                 port = str(ports.node_port) + ':'
             port = port + str(ports.port) + "/TCP"
 
@@ -115,7 +115,7 @@ def get_service_info():
             hello = i.spec.type
             ports = i.spec.ports[0]
             port = ''
-            if(ports.node_port != 'None'):
+            if ports.node_port != 'None':
                 port = str(ports.node_port) + ':'
             port = port + str(ports.port) + "/TCP"
 

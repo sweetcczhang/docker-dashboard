@@ -11,6 +11,7 @@ from kube import hostInfo
 from kube import pods
 from kube import service
 from kube import deploy
+from kube import file_create
 from harbor.rest import harbor as harbor_client
 from werkzeug.utils import secure_filename
 import os
@@ -67,14 +68,14 @@ def get_host_detail():
     return return_model
 
 
-@hosts.route('/getClusterInfo')
+@hosts.route('/getClusterInfo', methods=['GET', 'POST'])
 def get_all_cluster_info():
     return_model = {}
     pod_list = pods.get_all_pods()
     deploy_list = deploy.get_all_deployment()
     service_list = service.get_service_info()
     node_list = hostInfo.get_host_info()
-    repositries = harbor_client.repositories.list(1)
+    repositories = harbor_client.repositories.list(1)
     data = {
         'hosts': {
             'hostNum': node_list[0],
@@ -87,7 +88,7 @@ def get_all_cluster_info():
         },
         'deployNum': deploy_list[0],
         'serviceNum': service_list[0],
-        'repoNum': len(repositries)
+        'repoNum': len(repositories)
     }
     return_model['retCode'] = 200
     return_model['retDesc'] = 'success'
@@ -97,11 +98,28 @@ def get_all_cluster_info():
 
 @hosts.route('/yaml', methods=['GET', 'POST'])
 def upload_file():
-    if request.method == 'POST':
-        files = request.files['file']
-        filename = secure_filename(files.filename)
-        files.save(os.path.join(YAML_LOC, filename))
-
+    return_model = {}
+    try:
+        if request.method == 'POST':
+            files = request.files['file']
+            filename = secure_filename(files.filename)
+            file_path = os.path.join(YAML_LOC, filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            files.save(file_path)
+            if filename.rsplit('.', 1)[1] == 'json':
+                file_create.create_from_json(json_name=filename)
+            elif filename.rsplit('.', 1)[1] == 'yaml':
+                file_create.create_from_yaml(filename)
+            return_model['retCode'] = 200
+            return_model['retDesc'] = 'success'
+            return_model['data'] = None
+        else:
+            raise Exception('请求方法错误')
+    except Exception as e:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '创建任务失败'
+        print e
 
 
 
