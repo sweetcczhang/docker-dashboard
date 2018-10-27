@@ -1,5 +1,12 @@
+#!/usr/local/miniconda2/bin/python
 # _*_ coding:utf-8 _*_
-
+"""
+# @Project : docker-dashboard
+# @Time    : 2018/10/27 12:58 PM
+# @Author  : zhangchengcheng
+# @FileName: jenkins_job.py
+# @Github  : https://github.com/sweetcczhang
+"""
 import jenkins
 import xml.etree.ElementTree as ET
 
@@ -21,7 +28,7 @@ class jenkinsJob:
         __count = self.server.jobs_count()
         return __count
 
-    #获取所有JOB    
+    #获取所有JOB
     def getJobs(self):
         __jobs = self.server.get_jobs()
         return __jobs
@@ -49,7 +56,7 @@ class jenkinsJob:
         try:
             self.server.copy_job(name,name_new)
             print('Success')
-        except Exception as err:  
+        except Exception as err:
             print('---ERROR IN COPYJOB---')
             if self.server.get_job_name(name) == 'None':
                 print('---JOB NOT FOUND---')
@@ -79,8 +86,8 @@ class jenkinsJob:
             self.server.delete_job(name)
             print('Success')
             return 'success'
-        except Exception as err:            
-            print('---ERROR IN DELETEJOB---')    
+        except Exception as err:
+            print('---ERROR IN DELETEJOB---')
             print(format(err))
             return 'failure'
 
@@ -106,7 +113,7 @@ class jenkinsJob:
     def getJobInfo(self,name):
         try:
             info=self.server.get_job_info(name)
-            return info 
+            return info
         except Exception as err:
             print('---ERROR IN GETJOBINFO---')
             print(format(err))
