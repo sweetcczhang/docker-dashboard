@@ -42,3 +42,9 @@ def get_role_client():
     config_kube()
     role_client = client.RbacAuthorizationV1beta1Api()
     return role_client
+
+
+def get_auto_scaling():
+    config_kube()
+    auto_scaling = client.AutoscalingV1Api()
+    return auto_scaling

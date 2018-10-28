@@ -11,8 +11,6 @@ from kube.rest import configKube as conf
 sevices = Blueprint('services', __name__)
 
 
-
-
 @sevices.route('/create_service')
 def create_service():
     v1 = conf.get_core_v1_api()

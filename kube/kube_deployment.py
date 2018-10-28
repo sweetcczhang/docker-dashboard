@@ -151,7 +151,7 @@ class Deployments(basic.Client):
         """
         deployment.api_version = "extensions/v1beta1"
         deployment.kind = "Deployment"
-        deployment.metadata = client.V1ObjectMeta(name=name, labels=labels,namespace=namespace)
+        deployment.metadata = client.V1ObjectMeta(name=name, labels=labels, namespace=namespace)
         port = []
         for p in ports:
             port.append(client.V1ContainerPort(name=p.name, container_port=p.port, protocol=p.protocol))

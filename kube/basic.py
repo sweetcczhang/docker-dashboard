@@ -18,6 +18,7 @@ class Client(object):
         self.v1_client = conf.get_core_v1_api()
         self.ext_client = conf.get_extensions()
         self.role_client = conf.get_role_client()
+        self.auto_client = conf.get_auto_scaling()
 
     def v1_client(self):
         return self.v1_client
@@ -27,6 +28,9 @@ class Client(object):
 
     def role_client(self):
         return self.role_client
+
+    def auto_client(self):
+        return self.auto_client
 
     def pod_detail(self, pod):
         name = pod.metadata.name
@@ -140,6 +144,5 @@ class Client(object):
             service_detail = {"name": name, "namespace": namespace, "labels": labels, "clusterIp": cluster_ip,
                               "type": hello, "port": port, "createTime": create_time}
             lists.append(service_detail)
-
 
         return lists

@@ -98,6 +98,10 @@ def get_all_cluster_info():
 
 @hosts.route('/yaml', methods=['GET', 'POST'])
 def upload_file():
+    """
+    通过上传的json文件或者yaml文件创建应用
+    :return:
+    """
     return_model = {}
     try:
         if request.method == 'POST':

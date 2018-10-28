@@ -92,7 +92,7 @@ def connect_host(ws):
     chan = host_client.get_invoke_shell(hostname=hostname)
     host = HostStreamThread(ws=ws, resp=chan)
     host.start()
-    print 'web socket has work...... '
+    print 'web socket has work......'
     while not ws.closed:
         command = ws.receive()
         if command is not None:
