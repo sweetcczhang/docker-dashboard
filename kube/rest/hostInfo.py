@@ -10,7 +10,7 @@ from flask import Blueprint, jsonify, request
 from kube import hostInfo
 from kube import pods
 from kube import service
-from kube import deploy
+from kube import deploys
 from kube import file_create
 from harbor.rest import harbor as harbor_client
 from werkzeug.utils import secure_filename
@@ -72,7 +72,7 @@ def get_host_detail():
 def get_all_cluster_info():
     return_model = {}
     pod_list = pods.get_all_pods()
-    deploy_list = deploy.get_all_deployment()
+    deploy_list = deploys.get_all_deployment()
     service_list = service.get_service_info()
     node_list = hostInfo.get_host_info()
     repositories = harbor_client.repositories.list(1)

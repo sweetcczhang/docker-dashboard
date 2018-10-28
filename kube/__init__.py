@@ -21,7 +21,7 @@ from kube.create_from_yaml import YamlCreate
 
 hostInfo = HostInfo()
 
-deploy = Deployments()
+deploys = Deployments()
 
 name_space = Namespace()
 

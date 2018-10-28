@@ -115,7 +115,7 @@ class Deployments(basic.Client):
         :return:
         """
         try:
-            api_response = self.ext_client.patch_namespaced_deployment(name=name,namespace=namespace,body=deployment)
+            api_response = self.ext_client.patch_namespaced_deployment(name=name, namespace=namespace, body=deployment)
             print ("Deployment updated. status='%s'" % str(api_response.status))
         except ApiException as e:
             print e
@@ -132,7 +132,7 @@ class Deployments(basic.Client):
             print e
 
     def create_deployment_yaml(self, name, image, namespace='default', labels=None, container_name=None, ports=None,
-                               template_labels=None, replicas=1):
+                               template_labels=None, replicas=1, resources=None):
         """
         构造一个deployment的yaml文件进行部署
         :param name: deployment的名称
@@ -143,6 +143,7 @@ class Deployments(basic.Client):
         :param ports: 容器的端口
         :param template_labels: replicas的选择标签
         :param replicas: 要部署的容器的数量
+        :param resources:
         :return:
         """
         deployment = client.ExtensionsV1beta1Deployment()
@@ -159,6 +160,8 @@ class Deployments(basic.Client):
         构造容器(container)模版
         """
         container = client.V1Container(name=container_name, image=image, ports=port)
+        if resources is not None:
+            container.resources = resources
         """
         构造replicas的模版
         """
