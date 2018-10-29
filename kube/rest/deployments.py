@@ -14,9 +14,24 @@ from kube.rest import configKube as conf
 deploy = Blueprint('deployments', __name__)
 
 
-@deploy.route('/update')
+@deploy.route('/updateDeployment')
 def update_deployment():
-    print
+    return_model = {}
+    name = request.args.get(key='name')  # deployment的名称
+    namespace = request.args.get(key='namespace', default='default')  # 命名空间
+
+    replicas = request.args.get(key='replicas', default=1)  # 副本的数量
+    image = request.args.get(key='image', default=None)  # 镜像名称
+    # container_port = request.args.get("containerPort")  # 容器的端口
+    labels = request.args.get(key='labels', default=None)  # deployment标签
+
+    container_name = request.args.get(key='containerName', default=name)  # 容器的名称
+    ports = request.args.get(key='ports', default=None)  # 容器的端口
+    template_labels = request.args.get(key='templateLabels', default=labels)  # templateLabels
+    resources = request.args.get(key='resources', default=None)  # 资源限制
+    commands = request.args.get(key='commands', default=None)
+    args = request.args.get('args')
+
 
 
 @deploy.route('getDeployDetail', methods=['GET', 'POST'])
@@ -107,7 +122,7 @@ def create_deployment():
         return jsonify(return_model)
     deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
                                    container_name=container_name, ports=ports, template_labels=template_labels,
-                                   replicas=replicas, resources=resources, commands=commands)
+                                   replicas=replicas, resources=resources, commands=commands, args=args)
     try:
         result = deploys.create_deployment(deployment=deployment, namespace=namespace)
         if result:

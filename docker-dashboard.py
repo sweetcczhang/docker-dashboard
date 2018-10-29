@@ -18,6 +18,7 @@ from terminal.host_stream_thread import HostStreamThread
 from terminal.host_client import HostClient
 from logs.restful.logs_info import logs
 import confHarbor
+import yaml
 
 app = Flask(__name__)
 sockets = Sockets(app)
@@ -39,8 +40,12 @@ def test():
     return jsonify(return_model)
 
 
-@app.route('/test2')
+@app.route('/test2', methods=['GET', 'POST'])
 def test1():
+    texts = request.values.get(key='yaml')
+    print texts
+    l=yaml.load(texts)
+    print l
     return_model = {}
     return_model['retCode'] = confHarbor.HARBOR_PASSWORD
     return_model['retDesc'] = confHarbor.HARBOR_USERNAME

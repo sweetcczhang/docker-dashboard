@@ -126,4 +126,38 @@ def upload_file():
         print e
 
 
+@hosts.route('/getJson', methods=['POST'])
+def get_json_from_value():
+    return_model = {}
+    jsons = request.values.get(key='json', deploys=None)
+    if jsons is None:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = 'json参数不能为空'
+    try:
+        file_create.get_json(jsons)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '请检查json参数格式是否正确'
+    return jsonify(return_model)
 
+
+@hosts.route('/getYaml', methods=['POST'])
+def get_yaml_from_value():
+
+    return_model = {}
+    yaml_value = request.values.get(key='yaml', default=None)
+    if yaml_value is None:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = 'yaml参数不能为空'
+    try:
+        file_create.get_yaml(f=yaml_value)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '请检查yaml文件的格式是否正确'
+    return return_model
