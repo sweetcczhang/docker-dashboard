@@ -82,6 +82,7 @@ class Pods(basic.Client):
         :param requests:
         :return:
         """
+        result = False
         """
         构造一个pod对象
         """
@@ -96,7 +97,12 @@ class Pods(basic.Client):
         构造spec部分
         """
         spec = client.V1PodSpec(hostname=hostname)
-        containers = client.V1Container(image=image, args=args, commands=commands, ports=ports)
+        containers = client.V1Container(image=image, ports=ports)
+        if args is not None:
+            containers.args = args
+        if commands is not None:
+            containers.command = commands
+
         resources = client.V1ResourceRequirements(limits=limits, requests=requests)
         containers.resources = resources
         spec.containers = containers
@@ -110,7 +116,12 @@ class Pods(basic.Client):
         """
         调用接口创建pod对象
         """
-        self.v1_client.create_namespaced_pod(namespace=namespace, body=pod)
+        try:
+            self.v1_client.create_namespaced_pod(namespace=namespace, body=pod)
+            result = True
+        except ApiException as e:
+            print e
+        return result
 
     def get_pod_log(self, name, namespace='default'):
         """

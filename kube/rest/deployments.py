@@ -33,7 +33,6 @@ def update_deployment():
     args = request.args.get('args')
 
 
-
 @deploy.route('getDeployDetail', methods=['GET', 'POST'])
 def get_deployment_detail():
     return_model = {}

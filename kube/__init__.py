@@ -25,7 +25,7 @@ deploys = Deployments()
 
 name_space = Namespace()
 
-pods = Pods()
+pods_client = Pods()
 
 service = Services()
 

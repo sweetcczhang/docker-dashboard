@@ -98,7 +98,7 @@ def get_service_info():
     """
     v1 = conf.get_core_v1_api()
     return_model = {}
-    lists =[]
+    lists = []
     try:
         sevices_list = v1.list_service_for_all_namespaces().items
         for i in sevices_list:
