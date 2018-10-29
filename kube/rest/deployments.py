@@ -29,7 +29,7 @@ def get_deployment_detail():
         return_model['retDesc'] = '参数错误，name不能为空'
         return jsonify(return_model)
     try:
-        deployment = deploys.get_deployment_detail(name=name,namespace=namespace)
+        deployment = deploys.get_deployment_detail(name=name, namespace=namespace)
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         return_model['data'] = deployment
@@ -58,25 +58,48 @@ def get_deployment():
     return jsonify(return_model)
 
 
-@deploy.route('/create')
+@deploy.route('/deleteDeployment', methods=['GET', 'POST'])
+def delete_deployment():
+    return_model = {}
+    name = request.args.get(key='name', default=None)
+    namespace = request.args.get(key='namespace', default='default')
+    try:
+        if name is None:
+            raise Exception('参数name不能为空')
+        result = deploys.delete_deployment(name=name, namespace=namespace)
+        if result:
+            return_model['retCode'] = 200
+            return_model['retDesc'] = 'success'
+        else:
+            raise Exception('删除deployment %s', name)
+    except Exception as e:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = e.message
+        print e
+    return jsonify(return_model)
+
+
+@deploy.route('/create', methods=['GET', 'POST'])
 def create_deployment():
     """
     创建deployment
     :return:
     """
     return_model = {}
-    name = request.args.get(key='name')
-    namespace = request.args.get('namespace', 'default')    # 命名空间
+    name = request.args.get(key='name')   # deployment的名称
+    namespace = request.args.get(key='namespace', default='default')    # 命名空间
 
     replicas = request.args.get(key='replicas', default=1)  # 副本的数量
     image = request.args.get(key='image', default=None)   # 镜像名称
     # container_port = request.args.get("containerPort")  # 容器的端口
     labels = request.args.get(key='labels', default=None)  # deployment标签
 
-    container_name = request.args.get(key='containerName', default=name)
+    container_name = request.args.get(key='containerName', default=name)    # 容器的名称
     ports = request.args.get(key='ports', default=None)  # 容器的端口
-    template_labels = request.args.get(key='templateLabels')
-    resources = request.args.get(key='resources', default=None)
+    template_labels = request.args.get(key='templateLabels', default=labels)    # templateLabels
+    resources = request.args.get(key='resources', default=None)  # 资源限制
+    commands = request.args.get(key='commands', default=None)
+    args = request.args.get('args')
 
     if image is None:
         return_model['retCode'] = 500
@@ -84,11 +107,19 @@ def create_deployment():
         return jsonify(return_model)
     deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
                                    container_name=container_name, ports=ports, template_labels=template_labels,
-                                   replicas=replicas, resources=resources)
+                                   replicas=replicas, resources=resources, commands=commands)
     try:
-        deploys.create_deployment(deployment=deployment, namespace=namespace)
+        result = deploys.create_deployment(deployment=deployment, namespace=namespace)
+        if result:
+            return_model['retCode'] = 200
+            return_model['retDesc'] = 'success'
+        else:
+            raise Exception('创建deployment失败')
     except Exception as e:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '请检查参数'
         print e
+    return jsonify(return_model)
 
     # deployment = client.ExtensionsV1beta1Deployment()
     # """
@@ -141,6 +172,5 @@ def create_deployment():
     #     return_model['data'] = None
     #     print e
 
-    return jsonify(return_model)
 
 

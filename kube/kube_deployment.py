@@ -99,12 +99,16 @@ class Deployments(basic.Client):
         :param namespace: deployment所在的命名空间
         :return:
         """
+        result = False
         try:
             #创建一个deployment
             api_response = self.ext_client.create_namespaced_deployment(namespace=namespace, body=deployment)
+
             print ("Deployment created. status='%s'" % str(api_response.status))
+            result = True
         except ApiException as e:
             print e
+        return result
 
     def update_deployment(self, name, deployment, namespace='default'):
         """
@@ -121,18 +125,21 @@ class Deployments(basic.Client):
             print e
 
     def delete_deployment(self, name, namespace='default'):
-
+        result = False
         try:
             api_response = self.ext_client.delete_namespaced_deployment(name=name,
                                                                         namespace=namespace,
                                                                         body=client.V1DeleteOptions(propagation_policy='Foreground',
                                                                                                     grace_period_seconds=5))
             print ("Deployment deleted. status='%s'" % str(api_response.status))
+            result = True
         except ApiException as e:
             print e
 
+        return result
+
     def create_deployment_yaml(self, name, image, namespace='default', labels=None, container_name=None, ports=None,
-                               template_labels=None, replicas=1, resources=None):
+                               template_labels=None, replicas=1, resources=None, commands=None, args=None):
         """
         构造一个deployment的yaml文件进行部署
         :param name: deployment的名称
@@ -144,6 +151,8 @@ class Deployments(basic.Client):
         :param template_labels: replicas的选择标签
         :param replicas: 要部署的容器的数量
         :param resources:
+        :param commands:
+        :param args:
         :return:
         """
         deployment = client.ExtensionsV1beta1Deployment()
@@ -162,6 +171,13 @@ class Deployments(basic.Client):
         container = client.V1Container(name=container_name, image=image, ports=port)
         if resources is not None:
             container.resources = resources
+
+        if commands is not None:
+            container.command = commands
+
+        if args is not None:
+            container.args = args
+
         """
         构造replicas的模版
         """
