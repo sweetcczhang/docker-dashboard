@@ -27,8 +27,8 @@ name_space = Namespace()
 
 pods_client = Pods()
 
-service = Services()
+service_client = Services()
 
-replicas_set = ReplicasSet()
+replicas_client = ReplicasSet()
 
 file_create = YamlCreate()

@@ -8,8 +8,8 @@
 from flask import Blueprint, jsonify, request
 
 from kube import hostInfo
-from kube import pods
-from kube import service
+from kube import pods_client
+from kube import service_client
 from kube import deploys
 from kube import file_create
 from harbor.rest import harbor as harbor_client
@@ -52,7 +52,7 @@ def get_host_detail():
     host_name = request.args.get(key='hostName', default=None)
     try:
         host_detail = hostInfo.host_detail(host_name=host_name)
-        pod_info = pods.get_pod_from_label_or_field(field_selector=host_name)
+        pod_info = pods_client.get_pod_from_label_or_field(field_selector=host_name)
         if host_detail is not None:
             return_model['retCode'] = 200
             return_model['retDesc'] = 'success'
@@ -71,9 +71,9 @@ def get_host_detail():
 @hosts.route('/getClusterInfo', methods=['GET', 'POST'])
 def get_all_cluster_info():
     return_model = {}
-    pod_list = pods.get_all_pods()
+    pod_list = pods_client.get_all_pods()
     deploy_list = deploys.get_all_deployment()
-    service_list = service.get_service_info()
+    service_list = service_client.get_service_info()
     node_list = hostInfo.get_host_info()
     repositories = harbor_client.repositories.list(1)
     data = {

@@ -10,6 +10,7 @@
 
 from kube import basic
 from kubernetes.client.rest import ApiException
+import kubernetes
 from datetime import datetime
 import pytz
 
@@ -64,12 +65,29 @@ class AutoScale(basic.Client):
                 target = kind + '/' + names
                 current_replicas = api.status.current_replicas
                 temp = {'name': name, 'days': days, 'createTime': create_time, 'minReplicas': min_replicas,
-                         'maxReplicas': max_replicas, 'target': target, 'CurrentReplicas': current_replicas}
+                        'maxReplicas': max_replicas, 'target': target, 'CurrentReplicas': current_replicas}
                 lists.append(temp)
             print (api_response)
         except ApiException as e:
             print("Exception when calling AutoscalingV1Api->list_horizontal_pod_autoscaler_for_all_namespaces: %s\n" % e)
-        return lists
+        return len(lists), lists
+
+    def delete_auto_scaling(self, name, namespace):
+        """
+        删除指定的auto scaling
+        :param name:
+        :param namespace:
+        :return:
+        """
+        result = False
+        try:
+            body = kubernetes.client.V1DeleteOptions(propagation_policy='Foreground', grace_period_seconds=5)
+            self.auto_client.delete_namespaced_horizontal_pod_autoscaler(name=name, namespace=namespace, body=body)
+            result = True
+
+        except ApiException as e:
+            print e
+        return result
 
 
 if __name__ == '__main__':

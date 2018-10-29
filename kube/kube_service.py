@@ -53,8 +53,7 @@ class Services(basic.Client):
 
         return len(lists), lists
 
-    def create_service(self, name, labels, port=80, namespace='default', node_port=None, protocol='TCP', port_type=None,
-                       selector=None):
+    def create_service(self, name, labels, namespace='default', port_type=None, s_port=None, selector=None):
         """
         一个service主要分为三部分：
         元数据:metadata
@@ -62,10 +61,8 @@ class Services(basic.Client):
         状态:status
         :param name:
         :param labels:
-        :param port:
+        :param s_port:
         :param namespace:
-        :param node_port:
-        :param protocol:
         :param port_type:
         :param selector:
         :return:
@@ -86,11 +83,16 @@ class Services(basic.Client):
         s_spec = client.V1ServiceSpec()
         s_spec.type = port_type
         s_spec.selector = selector
-        ports = [client.V1ServicePort(name=None, node_port=node_port, port=port, protocol=protocol)]
+        ports = []
+        for p in s_port:
+            v_port = client.V1ServicePort(name=p.name, node_port=p.nodePort, port=p.port, target_port=p.targetPort,
+                                          protocol=p.protocol)
+            ports.append(v_port)
 
         s_spec.ports = ports
         service.metadata = metadata
         service.spec = s_spec
+
         self.v1_client.create_namespaced_service(namespace=namespace, body=service)
 
     def get_service_detail(self, name, namespace='default'):
@@ -129,15 +131,15 @@ class Services(basic.Client):
             print e
         return service_detail
 
-    def get_service_from_label_selector(self, label_selector):
-        service_detail = {}
+    def get_service_from_label_selector(self, label_selector, namespace):
+        service_list = {}
         try:
-            api_response = self.v1_client.list_service_for_all_namespaces(label_selector=label_selector)
-            service_detail = self.service_detail(api_response)
+            api_response = self.v1_client.list_namespaced_service(namespace=namespace, label_selector=label_selector)
+            service_list = self.service_list(api_response)
 
         except ApiException as e:
             print e
-        return service_detail
+        return len(service_list), service_list
 
 
 if __name__ == '__main__':

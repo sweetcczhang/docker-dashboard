@@ -7,43 +7,83 @@
 from flask import Blueprint, jsonify,request
 from kubernetes.client.rest import ApiException
 from kube.rest import configKube as conf
+from kube import service_client
 
-sevices = Blueprint('services', __name__)
+services = Blueprint('services', __name__)
 
 
-@sevices.route('/create_service')
+@services.route('/createService', methods=['GET', 'POST'])
 def create_service():
     v1 = conf.get_core_v1_api()
     return_model = {}
-    #name = request.args.get('name')
-    #namespace = request.args.get('namespace', 'default')
-    name = 'example-service'
-    namespace = 'default'
+    name = request.args.get(key='name')
+    namespace = request.args.get(key='namespace', default='default')
+    labels = request.values.get(key='labels', default=None)
+    port_type = request.values.get(key='portType', default=None)
+    v_port = request.values.get(key='ports', default=None)
+    selector = request.values.get(key='selector', default=None)
+
     try:
-        api_response = v1.read_namespaced_service(name=name, namespace=namespace)
+        service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
+                                      s_port=v_port, selector=selector)
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
-        return_model['data'] = api_response
         print return_model
     except ApiException as e:
         return_model['retCode'] = 500
-        return_model['retDesc'] = 'failure'
-        return_model['data'] = None
+        return_model['retDesc'] = '创建service失败'
         print e
+    return jsonify(return_model)
 
 
-
-
-@sevices.route('/get_service_detail')
+@services.route('/get_service_detail')
 def get_service_details():
     """
     获取某个service的具体信息内容
     :return:
     """
-    v1 = conf.get_core_v1_api()
+    return_model = {}
+    name = request.values.get(key='name', default=None)
+    namespace = request.values.get(key='namespace', default='default')
+    try:
+        service_detail = service_client.get_service_detail(name=name, namespace=namespace)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = service_detail
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '查询service详细信息失败'
+    return jsonify(return_model)
 
 
-@sevices.route('/get_service_by_namespace')
+@services.route('/getServices/fromFieldOrLabel', methods=['GET', 'POST'])
+def get_service_from_field_label():
+    label_selector = request.values.get(key='label_selector', default=None)
+    namespace = request.values.get(key='namespace', default='default')
+    return_model = {}
+    try:
+        services_list = service_client.get_service_from_label_selector(label_selector=label_selector, namespace=namespace)
+        data = {'length': services_list[0], 'servicesList': services_list[1]}
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = data
+    except Exception as e:
+        return_model['retDesc'] = '通过label查询service失败'
+        return_model['retCode'] = 500
+        print e
+    return jsonify(return_model)
+
+
+@services.route('/deleteService', methods=['GET', 'POST'])
+def delete_service():
+    return_model = {}
+    name = request.values.get('name', default=None)
+    namespace = request.values.get('namespace', default='default')
+    return jsonify(return_model)
+
+
+@services.route('/get_service_by_namespace')
 def get_service_by_namespace():
     """
     获取某个命名空间中所有的服务
@@ -90,43 +130,22 @@ def get_service_by_namespace():
     return jsonify(return_model)
 
 
-@sevices.route('/get_services')
+@services.route('/getServices')
 def get_service_info():
     """
     获取集群中所有的service的信息
     :return:
     """
-    v1 = conf.get_core_v1_api()
     return_model = {}
-    lists = []
+    namespace = request.values.get(key='namespace', default=None)
     try:
-        sevices_list = v1.list_service_for_all_namespaces().items
-        for i in sevices_list:
-            name = i.metadata.name
-            namespace = i.metadata.namespace
-            label = i.metadata.labels
-            labels = ''
-            for key, value in label.items():
-                labels = labels + key + '=' + value + ','
-            labels = labels.encode('utf-8')
-            cluster_ip = i.spec.cluster_ip
-            hello = i.spec.type
-            ports = i.spec.ports[0]
-            port = ''
-            if ports.node_port != 'None':
-                port = str(ports.node_port) + ':'
-            port = port + str(ports.port) + "/TCP"
-
-            temp ={"name": name, "namespace": namespace, "labels": labels,
-                   "cluster_ip": cluster_ip, "type": hello, "port": port}
-            print temp
-            lists.append(temp)
-
+        services_list = service_client.get_service_info(namespace=namespace)
+        data = {'length': services_list[0], 'servicesList': services_list[1]}
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
-        return_model['data'] = lists
+        return_model['data'] = data
 
-    except ApiException as e:
+    except Exception as e:
         return_model['retCode'] = 500
         return_model['retDesc'] = 'failure'
         return_model['data'] = None
