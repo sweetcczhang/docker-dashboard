@@ -70,6 +70,7 @@ class AutoScale(basic.Client):
             print (api_response)
         except ApiException as e:
             print("Exception when calling AutoscalingV1Api->list_horizontal_pod_autoscaler_for_all_namespaces: %s\n" % e)
+            return None
         return len(lists), lists
 
     def delete_auto_scaling(self, name, namespace):

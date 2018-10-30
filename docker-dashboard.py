@@ -9,8 +9,9 @@ from flask import Flask, render_template, jsonify, request
 from flask_sockets import Sockets
 from kube.rest.blue import pods
 from kube.rest.hostInfo import hosts
-from kube.rest.services import sevices
+from kube.rest.services import services
 from kube.rest.deployments import deploy
+from kube.rest.autoscalingInfo import autoscaling
 from harbor.rest.restapi import harbors
 from terminal.pod_client import KubernetesClient
 from terminal.pod_stream_thread import StreamThread
@@ -26,8 +27,10 @@ app.register_blueprint(pods, url_prefix='/admin')
 app.register_blueprint(hosts, url_prefix='/host')
 app.register_blueprint(deploy, url_prefix='/deploy')
 app.register_blueprint(harbors, url_prefix='/harbor')
-app.register_blueprint(sevices, url_prefix='/service')
+app.register_blueprint(services, url_prefix='/service')
 app.register_blueprint(logs, url_prefix='/log')
+app.register_blueprint(autoscaling, url_prefix='/autoScale')
+
 
 @app.route('/test1')
 def test():
