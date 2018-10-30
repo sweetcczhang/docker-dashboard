@@ -132,6 +132,12 @@ class Services(basic.Client):
         return service_detail
 
     def get_service_from_label_selector(self, label_selector, namespace):
+        """
+        通过label selector来选择service
+        :param label_selector:
+        :param namespace:
+        :return:
+        """
         service_list = {}
         try:
             api_response = self.v1_client.list_namespaced_service(namespace=namespace, label_selector=label_selector)
@@ -140,6 +146,15 @@ class Services(basic.Client):
         except ApiException as e:
             print e
         return len(service_list), service_list
+
+    def delete_service(self, name, namespace):
+        result = False
+        try:
+            self.v1_client.delete_namespaced_service(name=name, namespace=namespace)
+            result = True
+        except ApiException as e:
+            print("Exception when calling CoreV1Api->delete_namespaced_service: %s\n" % e)
+        return result
 
 
 if __name__ == '__main__':

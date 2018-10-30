@@ -17,27 +17,27 @@ deploy = Blueprint('deployments', __name__)
 @deploy.route('/updateDeployment')
 def update_deployment():
     return_model = {}
-    name = request.args.get(key='name')  # deployment的名称
-    namespace = request.args.get(key='namespace', default='default')  # 命名空间
+    name = request.values.get(key='name')  # deployment的名称
+    namespace = request.values.get(key='namespace', default='default')  # 命名空间
 
-    replicas = request.args.get(key='replicas', default=1)  # 副本的数量
-    image = request.args.get(key='image', default=None)  # 镜像名称
+    replicas = request.values.get(key='replicas', default=1)  # 副本的数量
+    image = request.values.get(key='image', default=None)  # 镜像名称
     # container_port = request.args.get("containerPort")  # 容器的端口
-    labels = request.args.get(key='labels', default=None)  # deployment标签
+    labels = request.values.get(key='labels', default=None)  # deployment标签
 
-    container_name = request.args.get(key='containerName', default=name)  # 容器的名称
-    ports = request.args.get(key='ports', default=None)  # 容器的端口
-    template_labels = request.args.get(key='templateLabels', default=labels)  # templateLabels
-    resources = request.args.get(key='resources', default=None)  # 资源限制
-    commands = request.args.get(key='commands', default=None)
-    args = request.args.get('args')
+    container_name = request.values.get(key='containerName', default=name)  # 容器的名称
+    ports = request.values.get(key='ports', default=None)  # 容器的端口
+    template_labels = request.values.get(key='templateLabels', default=labels)  # templateLabels
+    resources = request.values.get(key='resources', default=None)  # 资源限制
+    commands = request.values.get(key='commands', default=None)
+    args = request.values.get('args')
 
 
 @deploy.route('getDeployDetail', methods=['GET', 'POST'])
 def get_deployment_detail():
     return_model = {}
-    namespace = request.args.get(key='namespace', default='default')
-    name = request.args.get(key='name', default=None)
+    namespace = request.values.get(key='namespace', default='default')
+    name = request.values.get(key='name', default=None)
     if name is None:
         return_model['retCode'] = 500
         return_model['retDesc'] = '参数错误，name不能为空'
@@ -56,7 +56,7 @@ def get_deployment_detail():
 
 @deploy.route('/getDeployList', methods=['GET', 'POST'])
 def get_deployment():
-    namespace = request.args.get('namespace', None)
+    namespace = request.values.get('namespace', None)
     return_model = {}
     try:
         deployment = deploys.get_all_deployment(namespace=namespace)
@@ -75,8 +75,8 @@ def get_deployment():
 @deploy.route('/deleteDeployment', methods=['GET', 'POST'])
 def delete_deployment():
     return_model = {}
-    name = request.args.get(key='name', default=None)
-    namespace = request.args.get(key='namespace', default='default')
+    name = request.values.get(key='name', default=None)
+    namespace = request.values.get(key='namespace', default='default')
     try:
         if name is None:
             raise Exception('参数name不能为空')
@@ -100,28 +100,29 @@ def create_deployment():
     :return:
     """
     return_model = {}
-    name = request.args.get(key='name')   # deployment的名称
-    namespace = request.args.get(key='namespace', default='default')    # 命名空间
+    name = request.values.get(key='name')   # deployment的名称
+    namespace = request.values.get(key='namespace', default='default')    # 命名空间
 
-    replicas = request.args.get(key='replicas', default=1)  # 副本的数量
-    image = request.args.get(key='image', default=None)   # 镜像名称
+    replicas = request.values.get(key='replicas', default=1)  # 副本的数量
+    image = request.values.get(key='image', default=None)   # 镜像名称
     # container_port = request.args.get("containerPort")  # 容器的端口
-    labels = request.args.get(key='labels', default=None)  # deployment标签
+    labels = request.values.get(key='labels', default=None)  # deployment标签
 
-    container_name = request.args.get(key='containerName', default=name)    # 容器的名称
-    ports = request.args.get(key='ports', default=None)  # 容器的端口
-    template_labels = request.args.get(key='templateLabels', default=labels)    # templateLabels
-    resources = request.args.get(key='resources', default=None)  # 资源限制
-    commands = request.args.get(key='commands', default=None)
-    args = request.args.get('args')
+    container_name = request.values.get(key='containerName', default=name)    # 容器的名称
+    ports = request.values.get(key='ports', default=None)  # 容器的端口
+    template_labels = request.values.get(key='templateLabels', default=labels)    # templateLabels
+    resources = request.values.get(key='resources', default=None)  # 资源限制
+    commands = request.values.get(key='commands', default=None)
+    args = request.values.get('args')
 
     if image is None:
         return_model['retCode'] = 500
         return_model['retDesc'] = '参数错误，镜像不能为空'
         return jsonify(return_model)
     deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
-                                   container_name=container_name, ports=ports, template_labels=template_labels,
-                                   replicas=replicas, resources=resources, commands=commands, args=args)
+                                                container_name=container_name, ports=ports,
+                                                template_labels=template_labels,
+                                                replicas=replicas, resources=resources, commands=commands, args=args)
     try:
         result = deploys.create_deployment(deployment=deployment, namespace=namespace)
         if result:

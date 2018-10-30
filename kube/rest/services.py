@@ -153,6 +153,23 @@ def get_service_info():
     return jsonify(return_model)
 
 
+@services.route('/deleteService', methods=['GET', 'POST'])
+def delete_service():
+    return_model = {}
+    name = request.values.get(key='value', default=None)
+    namespace = request.values.get(key='namespace', default='default')
+    try:
+        result = service_client.delete_service(name=name, namespace=namespace)
+        if result:
+            return_model['retCode'] = 200
+            return_model['retDesc'] = ('%s删除成功', name)
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = ('%s删除失败', name)
+
+    return jsonify(return_model)
+
+
 if __name__ == "__main__":
-    create_service()
-    #get_service_info()
+    get_service_info()

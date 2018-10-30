@@ -49,7 +49,7 @@ def get_host_detail():
     :return:
     """
     return_model = {}
-    host_name = request.args.get(key='hostName', default=None)
+    host_name = request.values.get(key='hostName', default=None)
     try:
         host_detail = hostInfo.host_detail(host_name=host_name)
         pod_info = pods_client.get_pod_from_label_or_field(field_selector=host_name)
