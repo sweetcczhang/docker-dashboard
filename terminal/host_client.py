@@ -13,11 +13,11 @@ from paramiko.ssh_exception import AuthenticationException, SSHException
 
 class HostClient(object):
 
-    def __init__(self, hostname, port, username, password):
-        self.hostname = hostname
-        self.port = port
-        self.username = username
-        self.password = password
+    # def __init__(self, hostname, port, username, password):
+    #     self.hostname = hostname
+    #     self.port = port
+    #     self.username = username
+    #     self.password = password
 
     def get_invoke_shell(self, hostname, port=22, username='root', password='root!@#456'):
         ssh = paramiko.SSHClient()

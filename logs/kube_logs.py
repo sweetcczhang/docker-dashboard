@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 class KubeLogs(object):
 
-    def __init__(self, ip='10.108.210.194', ports='32169', user_name='root', pwd='root', db='k8s'):
+    def __init__(self, ip='10.108.210.194', ports='32494', user_name='root', pwd='root', db='k8s'):
         self.client = InfluxDBClient(ip, ports, user_name, pwd, db)
 
     def node_query(self, table_name, ip):
@@ -29,14 +29,14 @@ class KubeLogs(object):
         time = []
 
         sql = "SELECT sum(value) FROM k8s.\"default\".\"{table_name}\" WHERE type = 'node' AND" \
-              " nodename =~ /{ip}$/ AND time > now() - 30m GROUP BY time(1m)".format(table_name=table_name, ip=ip)
+              " nodename =~ /{ip}$/ AND time > now() - 80m GROUP BY time(2m)".format(table_name=table_name, ip=ip)
         set = self.client.query(sql)
         self.client.close()
         for v1 in set:
             for v2 in v1:
                 date = datetime.strptime(v2['time'], "%Y-%m-%dT%H:%M:%SZ")
                 local = date + timedelta(hours=8)
-                time.append(datetime.strftime(local, '%Y-%m-%d %H:%M:%S'))
+                time.append(datetime.strftime(local, '%H:%M'))
                 used.append(v2['sum'])
         return used, time
 
@@ -55,7 +55,7 @@ class KubeLogs(object):
         else:
             types = "pod"
         sql = "SELECT sum(value) FROM k8s.\"default\".\"{table_name}\" WHERE  type = '{type}'" \
-              " AND namespace_name =~ /{namespace}$/ AND pod_name =~ /{pod_name}$/ AND time > now() - 30m" \
+              " AND namespace_name =~ /{namespace}$/ AND pod_name =~ /{pod_name}$/ AND time > now() - 41m" \
               " GROUP BY time(1m)".format(table_name=table_name, type=types, pod_name=pod_name, namespace=namespace)
         pod_list = self.client.query(sql)
         self.client.close()

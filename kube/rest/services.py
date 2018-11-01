@@ -9,10 +9,10 @@ from kubernetes.client.rest import ApiException
 from kube.rest import configKube as conf
 from kube import service_client
 
-services = Blueprint('services', __name__)
+service_s = Blueprint('services', __name__)
 
 
-@services.route('/createService', methods=['GET', 'POST'])
+@service_s.route('/createService', methods=['GET', 'POST'])
 def create_service():
     v1 = conf.get_core_v1_api()
     return_model = {}
@@ -36,7 +36,7 @@ def create_service():
     return jsonify(return_model)
 
 
-@services.route('/get_service_detail')
+@service_s.route('/get_service_detail')
 def get_service_details():
     """
     获取某个service的具体信息内容
@@ -57,7 +57,7 @@ def get_service_details():
     return jsonify(return_model)
 
 
-@services.route('/getServices/fromFieldOrLabel', methods=['GET', 'POST'])
+@service_s.route('/getServices/fromFieldOrLabel', methods=['GET', 'POST'])
 def get_service_from_field_label():
     label_selector = request.values.get(key='label_selector', default=None)
     namespace = request.values.get(key='namespace', default='default')
@@ -75,15 +75,7 @@ def get_service_from_field_label():
     return jsonify(return_model)
 
 
-@services.route('/deleteService', methods=['GET', 'POST'])
-def delete_service():
-    return_model = {}
-    name = request.values.get('name', default=None)
-    namespace = request.values.get('namespace', default='default')
-    return jsonify(return_model)
-
-
-@services.route('/get_service_by_namespace')
+@service_s.route('/get_service_by_namespace')
 def get_service_by_namespace():
     """
     获取某个命名空间中所有的服务
@@ -130,7 +122,7 @@ def get_service_by_namespace():
     return jsonify(return_model)
 
 
-@services.route('/getServices')
+@service_s.route('/getServices')
 def get_service_info():
     """
     获取集群中所有的service的信息
@@ -153,7 +145,7 @@ def get_service_info():
     return jsonify(return_model)
 
 
-@services.route('/deleteService', methods=['GET', 'POST'])
+@service_s.route('/deleteService', methods=['GET', 'POST'])
 def delete_service():
     return_model = {}
     name = request.values.get(key='value', default=None)

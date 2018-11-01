@@ -39,11 +39,14 @@ class Services(basic.Client):
                     labels = labels.encode('utf-8')
                 cluster_ip = i.spec.cluster_ip
                 hello = i.spec.type
-                ports = i.spec.ports[0]
-                port = ''
-                if ports.node_port != 'None':
-                    port = str(ports.node_port) + ':'
-                port = port + str(ports.port) + "/TCP"
+                ports = i.spec.ports
+                port = []
+                for p in ports:
+                    lp = ''
+                    if p.node_port is not None:
+                        lp = str(p.node_port) + ':'
+                    lp = lp + str(p.port) + "/TCP"
+                    port.append(lp)
                 temp = {"name": name, "namespace": namespace, "labels": labels,
                         "cluster_ip": cluster_ip, "type": hello, "port": port}
                 print temp

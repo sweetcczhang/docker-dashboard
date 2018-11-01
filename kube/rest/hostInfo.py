@@ -78,17 +78,19 @@ def get_all_cluster_info():
     repositories = harbor_client.repositories.list(1)
     data = {
         'hosts': {
-            'hostNum': node_list[0],
+            'totalNum': node_list[0],
             'readyNum': node_list[2],
             'notReadyNum': node_list[3]
         },
         'pods': {
+            'totalNum': pod_list[0],
             'readyNum': pod_list[0],
             'notReadyNum': 0
         },
         'deployNum': deploy_list[0],
         'serviceNum': service_list[0],
-        'repoNum': len(repositories)
+        'repoNum': len(repositories),
+        'logNum': 15
     }
     return_model['retCode'] = 200
     return_model['retDesc'] = 'success'

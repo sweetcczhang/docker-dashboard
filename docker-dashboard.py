@@ -9,7 +9,7 @@ from flask import Flask, render_template, jsonify, request
 from flask_sockets import Sockets
 from kube.rest.blue import pods
 from kube.rest.hostInfo import hosts
-from kube.rest.services import services
+from kube.rest.services import service_s
 from kube.rest.deployments import deploy
 from kube.rest.autoscalingInfo import autoscaling
 from harbor.rest.restapi import harbors
@@ -27,7 +27,7 @@ app.register_blueprint(pods, url_prefix='/admin')
 app.register_blueprint(hosts, url_prefix='/host')
 app.register_blueprint(deploy, url_prefix='/deploy')
 app.register_blueprint(harbors, url_prefix='/harbor')
-app.register_blueprint(services, url_prefix='/service')
+app.register_blueprint(service_s, url_prefix='/service')
 app.register_blueprint(logs, url_prefix='/log')
 app.register_blueprint(autoscaling, url_prefix='/autoScale')
 
@@ -94,9 +94,11 @@ def connect_host(ws):
     :param ws:
     :return:
     """
-    print request.args.get('host')
-    hostname = request.args.get('host', '10.108.210.194')
+    print request.values.get('host')
+    hostname = request.values.get('host', '10.108.210.194')
+    print "hello"
     host_client = HostClient()
+    print "world"
     chan = host_client.get_invoke_shell(hostname=hostname)
     host = HostStreamThread(ws=ws, resp=chan)
     host.start()

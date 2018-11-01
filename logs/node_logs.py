@@ -31,7 +31,7 @@ class NodeLogs(kube_logs.KubeLogs):
         """
         res["cpu"] = {}
         res["cpu"]["usage_rate"] = {}
-        res["cpu"]["limit"] = {}
+        # res["cpu"]["limit"] = {}
         res["cpu"]["request"] = {}
 
         """
@@ -41,7 +41,7 @@ class NodeLogs(kube_logs.KubeLogs):
         res["memory"]["usage"] = {}
         res["memory"]["working_set"] = {}
         res["memory"]["request"] = {}
-        res["memory"]["limit"] = {}
+        # res["memory"]["limit"] = {}
 
         """
         the network of node
@@ -60,57 +60,114 @@ class NodeLogs(kube_logs.KubeLogs):
         """
         cpu的使用情况
         """
-        (used, time) = self.nodequery("cpu/usage_rate",ip)
-        res["cpu"]["usage_rate"].setdefault("sum", used)
-        res["cpu"]["usage_rate"].setdefault("time", time)
+        (used, time) = self.node_query("cpu/usage_rate", ip)
+        used = used[1:]
+        print used
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c/1000.0
+            use.append(c)
+        res["cpu"]["usage_rate"].setdefault("sum", use)
+        res["cpu"]["usage_rate"].setdefault("time", time[1:])
 
-        (used, time) = self.nodequery("cpu/limit", ip)
-        res["cpu"]["limit"].setdefault("sum", used)
-        res["cpu"]["limit"].setdefault("time", time)
+        # (used, time) = self.node_query("cpu/limit", ip)
+        # res["cpu"]["limit"].setdefault("sum", used)
+        # res["cpu"]["limit"].setdefault("time", time)
 
-        (used, time) = self.nodequery("cpu/request", ip)
-        res["cpu"]["request"].setdefault("sum", used)
-        res["cpu"]["request"].setdefault("time", time)
+        (used, time) = self.node_query("cpu/request", ip)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c/1000.0
+            use.append(c)
+        res["cpu"]["request"].setdefault("sum", use)
+        res["cpu"]["request"].setdefault("time", time[1:])
 
         """
         memory的使用情况
         """
-        (used, time) = self.nodequery("memory/usage", ip)
-        res["memory"]["usage"].setdefault("sum", used)
-        res["memory"]["usage"].setdefault("time", time)
+        (used, time) = self.node_query("memory/usage", ip)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / (1024.0 * 1024.0 * 1024.0)
+            use.append(c)
+        res["memory"]["usage"].setdefault("sum", use)
+        res["memory"]["usage"].setdefault("time", time[1:])
 
-        (used, time) = self.nodequery("memory/limit", ip)
-        res["memory"]["limit"].setdefault("sum", used)
-        res["memory"]["limit"].setdefault("time", time)
+        # (used, time) = self.node_query("memory/limit", ip)
+        # res["memory"]["limit"].setdefault("sum", used)
+        # res["memory"]["limit"].setdefault("time", time)
 
-        (used, time) = self.nodequery("memory/request", ip)
-        res["memory"]["request"].setdefault("sum", used)
-        res["memory"]["request"].setdefault("time", time)
+        (used, time) = self.node_query("memory/request", ip)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / (1024.0 * 1024.0 * 1024.0)
+            use.append(c)
+        res["memory"]["request"].setdefault("sum", use)
+        res["memory"]["request"].setdefault("time", time[1:])
 
-        (used, time) = self.nodequery("memory/working_set", ip)
-        res["memory"]["working_set"].setdefault("sum", used)
+        (used, time) = self.node_query("memory/working_set", ip)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / (1024.0 * 1024.0 * 1024.0)
+            use.append(c)
+        res["memory"]["working_set"].setdefault("sum", use)
         res["memory"]["working_set"].setdefault("time", time)
 
         """
         network的使用情况
         """
-        (used, time) = self.nodequery("network/tx_rate", ip)
-        res["network"]["tx_rate"].setdefault("sum", used)
-        res["network"]["tx_rate"].setdefault("time", time)
+        (used, time) = self.node_query("network/tx_rate", ip)
 
-        (used, time) = self.nodequery("network/rx_rate", ip)
-        res["network"]["rx_rate"].setdefault("sum", used)
-        res["network"]["rx_rate"].setdefault("time", time)
+        res["network"]["tx_rate"].setdefault("sum", used[1:])
+        res["network"]["tx_rate"].setdefault("time", time[1:])
+
+        (used, time) = self.node_query("network/rx_rate", ip)
+        res["network"]["rx_rate"].setdefault("sum", used[1:])
+        res["network"]["rx_rate"].setdefault("time", time[1:])
 
         """
         filesystem的使用情况
         """
-        (used, time) = self.nodequery("filesystem/usage", ip)
-        res["filesystem"]["usage"].setdefault("sum", used)
-        res["filesystem"]["usage"].setdefault("time", time)
-
-        (used, time) = self.nodequery("filesystem/limit", ip)
-        res["filesystem"]["limit"].setdefault("sum", used)
-        res["filesystem"]["limit"].setdefault("time", time)
+        (used, time) = self.node_query("filesystem/usage", ip)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / (1024.0 * 1024.0 * 1024.0)
+            use.append(c)
+        res["filesystem"]["usage"].setdefault("sum", use)
+        res["filesystem"]["usage"].setdefault("time", time[1:])
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / (1024.0 * 1024.0 * 1024.0)
+            use.append(c)
+        (used, time) = self.node_query("filesystem/limit", ip)
+        res["filesystem"]["limit"].setdefault("sum", use)
+        res["filesystem"]["limit"].setdefault("time", time[1:])
 
         return res
+
+if __name__ == '__main__':
+    test =[10, 10, 10]
+    b =[]
+    for i in test:
+        b.append(i/2)
+    print b

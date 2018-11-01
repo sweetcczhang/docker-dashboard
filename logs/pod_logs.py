@@ -33,13 +33,13 @@ class PodLogs(kube_logs.KubeLogs):
         print(pod_name)
         res["cpu"] = {}
         res["cpu"]["usage_rate"] = {}
-        res["cpu"]["limit"] = {}
+        # res["cpu"]["limit"] = {}
         res["cpu"]["request"] = {}
         res["memory"] = {}
         res["memory"]["usage"] = {}
         res["memory"]["working_set"] = {}
         res["memory"]["request"] = {}
-        res["memory"]["limit"] = {}
+        # res["memory"]["limit"] = {}
         res["network"] = {}
         res["network"]["rx_rate"] = {}
         res["network"]["tx_rate"] = {}
@@ -49,60 +49,60 @@ class PodLogs(kube_logs.KubeLogs):
         """
         cpu的使用量
         """
-        (used, time) = self.podquery("cpu/usage_rate", namespace, pod_name)
+        (used, time) = self.pod_query("cpu/usage_rate", namespace, pod_name)
         res["cpu"]["usage_rate"].setdefault("sum", used)
         res["cpu"]["usage_rate"].setdefault("time", time)
         """
         cpu的使用限制
         """
-        (used, time) = self.podquery("cpu/limit", namespace, pod_name)
-        res["cpu"]["limit"].setdefault("sum", used)
-        res["cpu"]["limit"].setdefault("time", time)
+        # (used, time) = self.pod_query("cpu/limit", namespace, pod_name)
+        # res["cpu"]["limit"].setdefault("sum", used)
+        # res["cpu"]["limit"].setdefault("time", time)
         """
         cpu的请求量
         """
-        (used, time) = self.podquery("cpu/request", namespace, pod_name)
+        (used, time) = self.pod_query("cpu/request", namespace, pod_name)
         res["cpu"]["request"].setdefault("sum", used)
         res["cpu"]["request"].setdefault("time", time)
 
         """
         memory的使用情况
         """
-        (used, time) = self.podquery("memory/usage", namespace, pod_name)
+        (used, time) = self.pod_query("memory/usage", namespace, pod_name)
         res["memory"]["usage"].setdefault("sum", used)
         res["memory"]["usage"].setdefault("time", time)
 
-        (used, time) = self.podquery("memory/limit", namespace, pod_name)
-        res["memory"]["limit"].setdefault("sum", used)
-        res["memory"]["limit"].setdefault("time", time)
-
-        (used, time) = self.podquery("memory/request", namespace, pod_name)
+        # (used, time) = self.pod_query("memory/limit", namespace, pod_name)
+        # res["memory"]["limit"].setdefault("sum", used)
+        # res["memory"]["limit"].setdefault("time", time)
+        #
+        (used, time) = self.pod_query("memory/request", namespace, pod_name)
         res["memory"]["request"].setdefault("sum", used)
         res["memory"]["request"].setdefault("time", time)
 
-        (used, time) = self.podquery("memory/working_set", namespace, pod_name)
+        (used, time) = self.pod_query("memory/working_set", namespace, pod_name)
         res["memory"]["working_set"].setdefault("sum", used)
         res["memory"]["working_set"].setdefault("time", time)
 
         """
         网络的使用情况
         """
-        (used, time) = self.podquery("network/tx_rate", namespace, pod_name)
+        (used, time) = self.pod_query("network/tx_rate", namespace, pod_name)
         res["network"]["tx_rate"].setdefault("sum", used)
         res["network"]["tx_rate"].setdefault("time", time)
 
-        (used, time) = self.podquery("network/rx_rate", namespace, pod_name)
+        (used, time) = self.pod_query("network/rx_rate", namespace, pod_name)
         res["network"]["rx_rate"].setdefault("sum", used)
         res["network"]["rx_rate"].setdefault("time", time)
 
         """
         文件系统的使用情况
         """
-        (used, time) = self.podquery("filesystem/usage", namespace, pod_name)
+        (used, time) = self.pod_query("filesystem/usage", namespace, pod_name)
         res["filesystem"]["usage"].setdefault("sum", used)
         res["filesystem"]["usage"].setdefault("time", time)
 
-        (used, time) = self.podquery("filesystem/limit", namespace, pod_name)
+        (used, time) = self.pod_query("filesystem/limit", namespace, pod_name)
         res["filesystem"]["limit"].setdefault("sum", used)
         res["filesystem"]["limit"].setdefault("time", time)
 

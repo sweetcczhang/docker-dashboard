@@ -58,6 +58,7 @@ class AutoScale(basic.Client):
                 create_time = str(create_time)
                 create_time = create_time[:len(create_time) - 6]
                 name = api.metadata.name
+                space = api.metadata.namespace
                 min_replicas = api.spec.min_replicas
                 max_replicas = api.spec.max_replicas
                 kind = api.spec.scale_target_ref.kind
@@ -65,7 +66,8 @@ class AutoScale(basic.Client):
                 target = kind + '/' + names
                 current_replicas = api.status.current_replicas
                 temp = {'name': name, 'days': days, 'createTime': create_time, 'minReplicas': min_replicas,
-                        'maxReplicas': max_replicas, 'target': target, 'CurrentReplicas': current_replicas}
+                        'maxReplicas': max_replicas, 'target': target, 'CurrentReplicas': current_replicas,
+                        'namespace': space}
                 lists.append(temp)
             print (api_response)
         except ApiException as e:
@@ -90,7 +92,31 @@ class AutoScale(basic.Client):
             print e
         return result
 
+    def get_auto_scaling_detail(self, name, namespace):
+        try:
+            api = self.auto_client.read_namespaced_horizontal_pod_autoscaler(name=name, namespace=namespace)
+            create_time = api.metadata.creation_timestamp
+            now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
+            days = (now_time - create_time).days
+            create_time = str(create_time)
+            create_time = create_time[:len(create_time) - 6]
+            name = api.metadata.name
+            space = api.metadata.namespace
+            min_replicas = api.spec.min_replicas
+            max_replicas = api.spec.max_replicas
+            kind = api.spec.scale_target_ref.kind
+            names = api.spec.scale_target_ref.name
+            target = kind + '/' + names
+            current_replicas = api.status.current_replicas
+            temp = {'name': name, 'days': days, 'createTime': create_time, 'minReplicas': min_replicas,
+                    'maxReplicas': max_replicas, 'target': target, 'CurrentReplicas': current_replicas,
+                    'namespace': space}
+            return temp
+        except ApiException as e:
+            print e
+            return None
 
-if __name__ == '__main__':
-    auto = AutoScale()
-    auto.list_auto_scaling()
+
+# if __name__ == '__main__':
+#     auto = AutoScale()
+#     auto.list_auto_scaling()

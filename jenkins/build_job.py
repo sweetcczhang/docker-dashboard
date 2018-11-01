@@ -83,14 +83,14 @@ def addJob():
     pass
     # 获取参数 None=null
     if request.method == 'POST':
-        jobname = request.POST.get('jobname')
-        describtion = request.POST.get('description')
-        gitURL = request.POST.get('gitURL')
-        credentialsId = request.POST.get('credentialsId')
-        branches = request.POST.get('branches')
-        TimerTrigger = request.POST.get('TimerTrigger')
-        gitlabTrigger = request.POST.get('gitlabTrigger')
-        script = request.POST.get('script')
+        jobname = request.values.get('jobname')
+        describtion = request.values.get('description')
+        gitURL = request.values.get('gitURL')
+        credentialsId = request.values.get('credentialsId')
+        branches = request.values.get('branches')
+        TimerTrigger = request.values.get('TimerTrigger')
+        gitlabTrigger = request.values.get('gitlabTrigger')
+        script = request.values.get('script')
     else:
         jobname = request.GET('jobname')
         describtion = request.GET('description')
@@ -173,13 +173,13 @@ def addJob():
     xmlroot.appendChild(xml1blockBU)
 
     xml1triggers = doc.createElement('triggers')
-    if (TimerTrigger != None):
+    if TimerTrigger != None:
         xml2timetrigger = doc.createElement('hudson.triggers.TimerTrigger')
         xml3spec = doc.createElement('spec')
         xml3spec.appendChild(doc.createTextNode(TimerTrigger))
         xml2timetrigger.appendChild(xml3spec)
         xml1triggers.appendChild(xml2timetrigger)
-    if (gitlabTrigger != None):
+    if gitlabTrigger != None:
         xml2gittrigger = doc.createElement('com.dabsquared.gitlabjenkins.GitLabPushTrigger')
         xml2gittrigger.setAttribute('plugin', 'gitlab-plugin@1.5.9')
         xml3spec2 = doc.createElement('spec')
