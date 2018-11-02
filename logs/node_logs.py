@@ -66,13 +66,18 @@ class NodeLogs(kube_logs.KubeLogs):
         (used, time) = self.node_query("cpu/usage_rate", ip)
         print used
         used = used[1:]
-        print used
         use = []
         for c in used:
             if c is None:
                 c = use[-1]
             c = c/(1000.0 * 2.0)
             use.append(c)
+        i = len(use)
+        print i
+        a = use[i - 2]
+        use[i - 1] = a
+        # use[len(use) - 1] = use[len(use) - 2]
+        print use
         res["cpu"]["usage_rate"].setdefault("sum", use)
         res["cpu"]["usage_rate"].setdefault("time", time[1:])
 
@@ -88,6 +93,7 @@ class NodeLogs(kube_logs.KubeLogs):
                 c = use[-1]
             c/(1000.0 * 2.0)
             use.append(c)
+
         res["cpu"]["request"].setdefault("sum", use)
         res["cpu"]["request"].setdefault("time", time[1:])
 

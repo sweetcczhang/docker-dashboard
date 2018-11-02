@@ -29,7 +29,7 @@ class KubeLogs(object):
         time = []
 
         sql = "SELECT sum(value) FROM k8s.\"default\".\"{table_name}\" WHERE type = 'node' AND" \
-              " nodename =~ /{ip}$/ AND time > now() - 80m GROUP BY time(2m)".format(table_name=table_name, ip=ip)
+              " nodename =~ /{ip}$/ AND time > now() - 30m GROUP BY time(1m)".format(table_name=table_name, ip=ip)
         set = self.client.query(sql)
         self.client.close()
         for v1 in set:

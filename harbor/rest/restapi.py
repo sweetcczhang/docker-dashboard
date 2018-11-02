@@ -13,6 +13,8 @@ from harbor.rest import harbor as harbor_client
 
 from flask import request, jsonify, Blueprint
 
+from jenkins import create_image as build
+
 logger = logging.getLogger(__name__)
 
 harbors = Blueprint('restapi', __name__)
@@ -34,6 +36,76 @@ def do_search():
     logger.info("Find %d Projects: " % len(data['project']))
     logger.info("Find %d Repositories: " % len(data['repository']))
     return jsonify(return_model)
+
+
+@harbors.route('/buildImage', methods=['GET', 'POST'])
+def build_image_from_file():
+    return_model = {}
+    image_name = request.values.get(key='imageName', default=None)
+    label = request.values.get(key='label', default='latest')
+    dockerfile = request.files['dockerfile']
+    with open('Dockerfile', 'w') as f:
+        f.write(dockerfile.read())
+        f.close()
+    try:
+        result = build.image_build(image_name=image_name, version=label)
+        return_model['retDesc'] = 'success'
+        return_model['retCode'] = 200
+        return_model['data'] = result
+    except Exception as f:
+        return_model['retDesc'] = '镜像构建失败'
+        return_model['retCode'] = 500
+        print(f)
+    return jsonify(return_model)
+
+
+@harbors.route('/buildImageStr', methods=['POST'])
+def build_image_from_str():
+    return_model = {}
+    image_name = request.values.get(key='imageName', default=None)
+    label = request.values.get(key='label', default='latest')
+    dockerfile = request.values.get('dockerfile', default=None)
+    with open('Dockerfile', 'w') as f:
+        f.write(dockerfile.read())
+        f.close()
+    try:
+        result = build.image_build(image_name=image_name, version=label)
+        return_model['retDesc'] = 'success'
+        return_model['retCode'] = 200
+        return_model['data'] = result
+    except Exception as f:
+        return_model['retDesc'] = '镜像构建失败'
+        return_model['retCode'] = 500
+        print(f)
+    return jsonify(return_model)
+
+
+@harbors.route('/getHarborLogs', methods=['GET', 'POST'])
+def get_harbor_logs():
+    return_model = {}
+    try:
+        logs = harbor_client.logs.list()
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = {'length': len(logs), 'logsList': logs}
+    except Exception as e:
+        print(e)
+        return_model['retCode'] = 500
+        return_model['retDesc'] = ' 请求harbor操作日志失败'
+    return jsonify(return_model)
+
+    # print (logs)
+    # for log in logs:
+    #     repo = log['repo_name']
+    #     tag = None
+    #     if log['repo_tag'] != 'N/A':
+    #         tag = log['repo_tag']
+    #     if tag:
+    #         repo += ":%s" % tag
+    #     log['repository'] = repo
+    # fields = ['log_id', 'op_time', 'username',
+    #           'project_id', 'operation', 'repository']
+    # utils.print_list(logs, fields)
 
 
 @harbors.route('/showProjectDetail')
@@ -82,7 +154,7 @@ def show_project_detail():
     return_model['retDesc'] = 'success'
     return_model['data'] = found_repo
     return jsonify(return_model)
-    utils.print_dict(found_repo)
+    # utils.print_dict(found_repo)
 
 
 @harbors.route('/list')
@@ -126,4 +198,5 @@ def get_image_list():
 
 
 if __name__ == "__main__":
-    get_image_list()
+    # get_image_list()
+    get_harbor_logs()
