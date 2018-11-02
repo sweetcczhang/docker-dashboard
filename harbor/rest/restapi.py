@@ -41,8 +41,8 @@ def show_project_detail():
     """Show specific repository detail information."""
     return_model = {}
 
-    project = request.args.get('project', harbor_client.client.project)
-    repo = request.args.get('repository')
+    project = request.values.get('project', harbor_client.client.project)
+    repo = request.values.get('repository')
     tag_index = repo.find(':')
     if tag_index != -1:
         tag = repo[tag_index + 1:]

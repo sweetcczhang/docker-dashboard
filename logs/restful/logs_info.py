@@ -15,7 +15,7 @@ logs = Blueprint('logs_info', __name__)
 @logs.route("/getNodeLogs")
 def get_node_logs():
     return_model = {}
-    host_ip = request.args.get(key='hostIp', default=None)
+    host_ip = request.values.get(key='hostIp', default=None)
     data = nodeLogs.node_data(ip=host_ip)
     return_model['retCode'] = 200
     return_model['retDesc'] = 'success'

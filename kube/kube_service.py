@@ -88,8 +88,9 @@ class Services(basic.Client):
         s_spec.selector = selector
         ports = []
         for p in s_port:
-            v_port = client.V1ServicePort(name=p.name, node_port=p.nodePort, port=p.port, target_port=p.targetPort,
-                                          protocol=p.protocol)
+            v_port = client.V1ServicePort(name=p['name'], node_port=p['nodePort'], port=p['port'],
+                                          target_port=p['targetPort'],
+                                          protocol=p['protocol'])
             ports.append(v_port)
 
         s_spec.ports = ports

@@ -103,7 +103,7 @@ class Deployments(basic.Client):
         try:
             #创建一个deployment
             api_response = self.ext_client.create_namespaced_deployment(namespace=namespace, body=deployment)
-
+            self.ext_client.patch_namespaced_deployment_scale()
             print ("Deployment created. status='%s'" % str(api_response.status))
             result = True
         except ApiException as e:
@@ -139,7 +139,7 @@ class Deployments(basic.Client):
         return result
 
     def create_deployment_yaml(self, name, image, namespace='default', labels=None, container_name=None, ports=None,
-                               template_labels=None, replicas=1, resources=None, commands=None, args=None):
+                               template_labels=None, replicas=1, resources=None, commands=None, args=None, env=None):
         """
         构造一个deployment的yaml文件进行部署
         :param name: deployment的名称
@@ -153,6 +153,7 @@ class Deployments(basic.Client):
         :param resources:
         :param commands:
         :param args:
+        :param env:
         :return:
         """
         deployment = client.ExtensionsV1beta1Deployment()
@@ -164,11 +165,15 @@ class Deployments(basic.Client):
         deployment.metadata = client.V1ObjectMeta(name=name, labels=labels, namespace=namespace)
         port = []
         for p in ports:
-            port.append(client.V1ContainerPort(name=p.name, container_port=p.port, protocol=p.protocol))
+            port.append(client.V1ContainerPort(name=p['name'], container_port=p['port'], protocol=p['protocol']))
         """
         构造容器(container)模版
         """
         container = client.V1Container(name=container_name, image=image, ports=port)
+        client.V1EnvFromSource()
+        client.V1EnvVar()
+        client.V1EnvVarSource()
+        client.V1ConfigMapKeySelector()
         if resources is not None:
             container.resources = resources
 
@@ -177,6 +182,14 @@ class Deployments(basic.Client):
 
         if args is not None:
             container.args = args
+
+        if env is not None:
+            envs = []
+            for e in env:
+                env_var = client.V1EnvVar(name=e['name'], value=e['value'])
+                envs.append(env_var)
+            container.env = envs
+
 
         """
         构造replicas的模版

@@ -113,7 +113,12 @@ def create_deployment():
     template_labels = request.values.get(key='templateLabels', default=labels)    # templateLabels
     resources = request.values.get(key='resources', default=None)  # 资源限制
     commands = request.values.get(key='commands', default=None)
-    args = request.values.get('args')
+    args = request.values.get(key='args', default=None)
+    env = request.values.get(key='env', default=None)
+
+    service_port = request.values.get(key='servicePort', default=None)
+
+    auto_scale = request.values.get(key='autoSacle', default=None)
 
     if image is None:
         return_model['retCode'] = 500
@@ -122,7 +127,7 @@ def create_deployment():
     deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
                                                 container_name=container_name, ports=ports,
                                                 template_labels=template_labels,
-                                                replicas=replicas, resources=resources, commands=commands, args=args)
+                                                replicas=replicas, resources=resources, commands=commands, args=args, env=env)
     try:
         result = deploys.create_deployment(deployment=deployment, namespace=namespace)
         if result:
