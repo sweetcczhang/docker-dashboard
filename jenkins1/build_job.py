@@ -7,99 +7,155 @@
 # @FileName: build_job.py
 # @Github  : https://github.com/sweetcczhang
 """
-import jenkins_job
+
+from jenkins1 import jks
 import jenkins1
 import xml.dom.minidom
 
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 
-jks = jenkins_job.JenkinsJob('http://10.108.210.227:9999', 'admin', 'root!@#456')
-
-
-def getVersion():
-    version = jks.getVersion()
-    result = {'version': version}
-    return jsonify(result)
+jenkin = Blueprint('build_job', __name__)
 
 
-def addJobOld():
-    if request.method == 'POST':
-        jobname = request.POST.get("jobname")
-        # TODO根据数据自定义XML
-        result = {'result': jks.createJob(jobname, jenkins1.EMPTY_CONFIG_XML)}
-        return jsonify(result)
-    else:
-        jobname = request.GET['jobname']
-        result = {'result': jks.createJob(jobname, jenkins1.EMPTY_CONFIG_XML)}
-        return jsonify(result)
+@jenkin.route('/getJobInfo', methods=['GET', 'POST'])
+def get_job_info():
+    return_model = {}
+    name = request.values.get(key='name')
+    try:
+        info = jks.get_job_info(name=name)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = info
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '获取%s信息失败', name
+
+    return jsonify(return_model)
+
+
+@jenkin.route('/getVersion', methods=['GET', 'POST'])
+def get_version():
+    return_model = {}
+    try:
+        version = jks.getVersion()
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = version
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '接口调用错误'
+
+    return jsonify(return_model)
+
+
+@jenkin.route('/getAllJob', methods=['GET', 'POST'])
+def get_all_job():
+    return_model = {}
+    try:
+        result = jks.get_jobs()
+        print result
+    except Exception as e:
+        print e
+    return jsonify(return_model)
+
+# @jenkin.route('/')
+# def add_job_old():
+#     return_model = {}
+#     if request.method == 'POST':
+#         jobname = request.POST.get("jobname")
+#         # TODO根据数据自定义XML
+#         result = {'result': jks.createJob(jobname, jenkins.EMPTY_CONFIG_XML)}
+#         return jsonify(result)
+#     else:
+#         jobname = request.GET['jobname']
+#         result = {'result': jks.createJob(jobname, jenkins.EMPTY_CONFIG_XML)}
+#         return jsonify(result)
 
     # return HttpResponse(json.dumps(result ), content_type="application/json")
 
-
-def deleteJob():
-    if request.method == 'POST':
-        jobname = request.POST.get("jobname")
-        result = {'result': jks.deleteJob(jobname)}
-        return jsonify(result)
-    else:
-        jobname = request.GET['jobname']
-        result = {'result': jks.deleteJob(jobname)}
-        return jsonify(result)
-
-
-def buildJob():
-    if request.method == 'POST':
-        jobname = request.POST.get("jobname")
-        result = {'result': jks.buildJob(jobname)}
-        return jsonify(result)
-    else:
-        jobname = request.GET['jobname']
-        result = {'result': jks.buildJob(jobname)}
-        return jsonify(result)
+@jenkin.route('/deleteJob', methods=['GET', 'POST'])
+def delete_job():
+    return_model = {}
+    job_name = request.values.get(key='jobName')
+    try:
+        result = jks.delete_job(name=job_name)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '删除失败'
+    return jsonify(return_model)
 
 
-def getBuildLog(request):
-    if request.method == 'POST':
-        jobname = request.POST.get("jobname")
-        number = int(request.POST.get("number"))
-        result = '<pre>' + jks.getBuildLog(jobname, number) + '</pre>'
-        return jsonify(result)
-    else:
-        jobname = request.GET['jobname']
-        number = int(request.GET['number'])
-        result = '<pre>' + jks.getBuildLog(jobname, number) + '</pre>'
+@jenkin.route('/buildJob', methods=['GET', 'POST'])
+def build_job():
+    job_name = request.values.get('jobName', default=None)
+    return_model = {}
+    try:
+        result = jks.build_job(name=job_name)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '构建失败'
+    return jsonify(return_model)
+
+
+@jenkin.route('/getBuildJob', methods=['GET', 'POST'])
+def get_build_log():
+    return_model = {}
+    try:
+        job_name = request.values.get("jobname")
+        number = int(request.values.get("number"))
+        result = jks.get_build_log(name=job_name, number=number)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+    except Exception as e:
+        print e
+        return_model['retDesc'] = '获取构建日志失败'
+        return_model['retCode'] = 500
+    return jsonify(return_model)
+
+
+@jenkin.route('/getJobXML', methods=['GET', 'POST'])
+def get_job_xml():
+    return_model = {}
+    job_name = request.values.get(key='jobName')
+    try:
+        result = jks.get_job_config(name=job_name)
         print(result)
-        return jsonify(result)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '获取%s的xml失败', job_name
+
+    return jsonify(return_model)
 
 
-def get_job_xml(request):
-    jobname = request.GET['jobname']
-    result = jks.getJobConfig(jobname)
-    print(result)
-    return jsonify(result, content_type='text/xml')
-
-
-def addJob():
-    pass
+@jenkin.route('/addJob', methods=['GET', 'POST'])
+def add_job():
     # 获取参数 None=null
-    if request.method == 'POST':
-        jobname = request.values.get('jobname')
-        describtion = request.values.get('description')
-        gitURL = request.values.get('gitURL')
-        credentialsId = request.values.get('credentialsId')
-        branches = request.values.get('branches')
-        TimerTrigger = request.values.get('TimerTrigger')
-        gitlabTrigger = request.values.get('gitlabTrigger')
-        script = request.values.get('script')
-    else:
-        jobname = request.GET('jobname')
-        describtion = request.GET('description')
-        gitURL = request.GET('gitURL')
-        credentialsId = request.GET('credentialsId')
-        branches = request.GET('branches')
-        TimerTrigger = request.GET('TimerTrigger')
-        gitlabTrigger = request.GET('gitlabTrigger')
-        script = request.GET('script')
+    job_name = request.values.get(key='jobname')
+    description = request.values.get(key='description', default=job_name)
+    git_url = request.values.get(key='gitURL')
+    credentials_id = request.values.get(key='credentialsId', default='')
+    branches = request.values.get(key='branches')
+    timer_trigger = request.values.get(key='TimerTrigger')
+    gitlab_trigger = request.values.get(key='gitlabTrigger')
+    script = request.values.get(key='script')
+    username = request.values.get(key='username')
+    password = request.values.get(key='password')
+    return_model = {}
 
     # 构建XML
     doc = xml.dom.minidom.Document()
@@ -109,7 +165,7 @@ def addJob():
     xmlroot.appendChild(xml1actions)
 
     xml1describtion = doc.createElement('description')
-    xml1describtion.appendChild(doc.createTextNode(describtion))
+    xml1describtion.appendChild(doc.createTextNode(description))
     xmlroot.appendChild(xml1describtion)
 
     xml1keepD = doc.createElement('keepDenpendencies')
@@ -132,10 +188,10 @@ def addJob():
     xml2userconfig = doc.createElement('userRemoteConfigs')
     xml3userconfig = doc.createElement('hudson.plugins.git.UserRemoteConfig')
     xml4url = doc.createElement('url')
-    xml4url.appendChild(doc.createTextNode(gitURL))
+    xml4url.appendChild(doc.createTextNode(git_url))
     xml3userconfig.appendChild(xml4url)
     xml4cred = doc.createElement('credentialsId')
-    xml4cred.appendChild(doc.createTextNode(credentialsId))
+    xml4cred.appendChild(doc.createTextNode(credentials_id))
     xml3userconfig.appendChild(xml4cred)
     xml2userconfig.appendChild(xml3userconfig)
     xml1scm.appendChild(xml2userconfig)
@@ -173,13 +229,13 @@ def addJob():
     xmlroot.appendChild(xml1blockBU)
 
     xml1triggers = doc.createElement('triggers')
-    if TimerTrigger != None:
+    if timer_trigger is not None:
         xml2timetrigger = doc.createElement('hudson.triggers.TimerTrigger')
         xml3spec = doc.createElement('spec')
-        xml3spec.appendChild(doc.createTextNode(TimerTrigger))
+        xml3spec.appendChild(doc.createTextNode(timer_trigger))
         xml2timetrigger.appendChild(xml3spec)
         xml1triggers.appendChild(xml2timetrigger)
-    if gitlabTrigger != None:
+    if gitlab_trigger is not None:
         xml2gittrigger = doc.createElement('com.dabsquared.gitlabjenkins.GitLabPushTrigger')
         xml2gittrigger.setAttribute('plugin', 'gitlab-plugin@1.5.9')
         xml3spec2 = doc.createElement('spec')
@@ -262,4 +318,21 @@ def addJob():
 
     xmlConfig = doc.toxml()
     print(xmlConfig)
-    return jsonify(jks.createJob(jobname, doc.toxml()))
+    try:
+        result = jks.create_job(job_name, doc.toxml())
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+        db = jenkins1.connect_db()
+        cur = db.cursor()
+        sql = "INSERT INTO jenkins(job_name,description,git_url,credentials_id,branches,timer_trigger," \
+              "gitlab_trigger,script,username,password) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"\
+              % (job_name, description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger, script, username, password)
+        cur.execute(sql)
+        db.commit()
+    except Exception as e:
+        print e
+        db.rollback()
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '创建job失败'
+    return jsonify(return_model)

@@ -18,7 +18,7 @@ from terminal.pod_stream_thread import StreamThread
 from terminal.host_stream_thread import HostStreamThread
 from terminal.host_client import HostClient
 from logs.restful.logs_info import logs
-from jenkins1.restBuild import jenkin
+from jenkins1.build_job import jenkin
 import confHarbor
 import yaml
 
@@ -31,7 +31,7 @@ app.register_blueprint(harbors, url_prefix='/harbor')
 app.register_blueprint(service_s, url_prefix='/service')
 app.register_blueprint(logs, url_prefix='/log')
 app.register_blueprint(autoscaling, url_prefix='/autoScale')
-app.register_blueprint(jenkin, url_prefix='/jenkins1')
+app.register_blueprint(jenkin, url_prefix='/jenkins')
 
 
 @app.route('/test1')

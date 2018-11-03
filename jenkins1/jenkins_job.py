@@ -7,34 +7,53 @@
 # @FileName: jenkins_job.py
 # @Github  : https://github.com/sweetcczhang
 """
-import jenkins1
+import jenkins
 import xml.etree.ElementTree as ET
 
 
 class JenkinsJob(object):
+
     def __init__(self, url, username, password):
         self.username = username
         self.password = password
         self.url = url
-        self.server = jenkins1.Jenkins(self.url, username=self.username, password=self.password)
+        self.server = jenkins.Jenkins(self.url, username=self.username, password=self.password)
 
-    #获取版本
-    def getVersion(self):
+    # 获取版本
+    def get_version(self):
+        """
+        获取版本
+        :return:
+        """
         __version = self.server.get_version()
         return __version
 
-    #获取JOB数量
-    def getJobCount(self):
+    # 获取JOB数量
+    def get_job_count(self):
+        """
+        获取JOB数量
+        :return:
+        """
         __count = self.server.jobs_count()
         return __count
 
-    #获取所有JOB
-    def getJobs(self):
+    # 获取所有JOB
+    def get_jobs(self):
+        """
+        获取所有JOB
+        :return:
+        """
         __jobs = self.server.get_jobs()
         return __jobs
 
-    #创建JOB
-    def createJob(self, name, config):
+    # 创建JOB
+    def create_job(self, name, config):
+        """
+        创建JOB
+        :param name:
+        :param config:
+        :return:
+        """
         try:
             ET.fromstring(config)
         except Exception as err:
@@ -43,7 +62,7 @@ class JenkinsJob(object):
             return 'failure'
 
         try:
-            self.server.create_job(name,config)
+            self.server.create_job(name, config)
             print('Success')
             return 'success'
         except Exception as err:
@@ -51,10 +70,16 @@ class JenkinsJob(object):
             print(format(err))
             return 'failure'
 
-    #复制JOB
-    def copyJob(self,name,name_new):
+    # 复制JOB
+    def copy_job(self, name, name_new):
+        """
+        复制JOB
+        :param name:
+        :param name_new:
+        :return:
+        """
         try:
-            self.server.copy_job(name,name_new)
+            self.server.copy_job(name, name_new)
             print('Success')
         except Exception as err:
             print('---ERROR IN COPYJOB---')
@@ -64,8 +89,14 @@ class JenkinsJob(object):
                 print('---RENAME NEW JOB---')
             print(format(err))
 
-    #修改JOB
-    def reconfigJob(self,name,config):
+    # 修改JOB
+    def reconfig_job(self, name, config):
+        """
+        修改JOB
+        :param name:
+        :param config:
+        :return:
+        """
         try:
             ET.fromstring(config)
         except Exception as err:
@@ -80,8 +111,13 @@ class JenkinsJob(object):
             print('---ERROR IN RECONFIGJOB---')
             print(format(err))
 
-    #删除JOB
-    def deleteJob(self,name):
+    # 删除JOB
+    def delete_job(self, name):
+        """
+        删除JOB
+        :param name:
+        :return:
+        """
         try:
             self.server.delete_job(name)
             print('Success')
@@ -91,8 +127,13 @@ class JenkinsJob(object):
             print(format(err))
             return 'failure'
 
-    #启用JOB
-    def enableJob(self,name):
+    # 启用JOB
+    def enable_job(self, name):
+        """
+        启用JOB
+        :param name:
+        :return:
+        """
         try:
             self.server.enable_job(name)
             print('Success')
@@ -100,8 +141,13 @@ class JenkinsJob(object):
             print('---ERROR IN ENABLEJOB---')
             print(format(err))
 
-    #禁用JOB
-    def disableJob(self,name):
+    #
+    def disable_job(self, name):
+        """
+        禁用JOB
+        :param name:
+        :return:
+        """
         try:
             self.server.disable_job(name)
             print('Success')
@@ -109,26 +155,40 @@ class JenkinsJob(object):
             print('---ERROR IN DISABLEJOB---')
             print(format(err))
 
-    #获取JOB详细信息
-    def getJobInfo(self,name):
+    #
+    def get_job_info(self, name):
+        """
+        获取JOB详细信息
+        :param name:
+        :return:
+        """
         try:
-            info=self.server.get_job_info(name)
+            info = self.server.get_job_info(name)
             return info
         except Exception as err:
             print('---ERROR IN GETJOBINFO---')
             print(format(err))
+            return None
 
-    #获取JOB配置
-    def getJobConfig(self, name):
+    def get_job_config(self, name):
+        """
+        获取JOB配置
+        :param name:
+        :return:
+        """
         try:
-            config=self.server.get_job_config(name)
+            config = self.server.get_job_config(name)
             return config
         except Exception as err:
             print('---ERROR IN GETJOBCONFIG---')
             print(format(err))
 
-    #构建Job
-    def buildJob(self,name):
+    def build_job(self, name):
+        """
+        构建Job
+        :param name:
+        :return:
+        """
         try:
             self.server.build_job(name)
             print('Success')
@@ -138,14 +198,21 @@ class JenkinsJob(object):
             print(format(err))
             return 'failure'
 
-    #获取构建日志
-    def getBuildLog(self,name,number):
+    def get_build_log(self, name, number):
+        """
+        获取构建日志
+        :param name:
+        :param number:
+        :return:
+        """
         try:
-            log=self.server.get_build_console_output(name, number)
+            log = self.server.get_build_console_output(name, number)
             return log
         except Exception as err:
-            print('---ERROR IN GETBUILDLOG---')
+            print('---ERROR IN GET BUILD LOG---')
             print(format(err))
+
+
 '''
 jks=jenkinsJob('http://10.108.210.227:9999','admin','root!@#456')
 version=jks.getVersion()
