@@ -8,12 +8,12 @@
 # @Github  : https://github.com/sweetcczhang
 """
 import jenkins_job
-import jenkins
+import jenkins1
 import xml.dom.minidom
 
 from flask import jsonify, request
 
-jks = jenkins_job.jenkinsJob('http://10.108.210.227:9999', 'admin', 'root!@#456')
+jks = jenkins_job.JenkinsJob('http://10.108.210.227:9999', 'admin', 'root!@#456')
 
 
 def getVersion():
@@ -26,11 +26,11 @@ def addJobOld():
     if request.method == 'POST':
         jobname = request.POST.get("jobname")
         # TODO根据数据自定义XML
-        result = {'result': jks.createJob(jobname, jenkins.EMPTY_CONFIG_XML)}
+        result = {'result': jks.createJob(jobname, jenkins1.EMPTY_CONFIG_XML)}
         return jsonify(result)
     else:
         jobname = request.GET['jobname']
-        result = {'result': jks.createJob(jobname, jenkins.EMPTY_CONFIG_XML)}
+        result = {'result': jks.createJob(jobname, jenkins1.EMPTY_CONFIG_XML)}
         return jsonify(result)
 
     # return HttpResponse(json.dumps(result ), content_type="application/json")

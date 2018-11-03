@@ -7,16 +7,16 @@
 # @FileName: jenkins_job.py
 # @Github  : https://github.com/sweetcczhang
 """
-import jenkins
+import jenkins1
 import xml.etree.ElementTree as ET
 
 
-class jenkinsJob:
+class JenkinsJob(object):
     def __init__(self, url, username, password):
         self.username = username
         self.password = password
         self.url = url
-        self.server = jenkins.Jenkins(self.url, username=self.username, password=self.password)
+        self.server = jenkins1.Jenkins(self.url, username=self.username, password=self.password)
 
     #获取版本
     def getVersion(self):
@@ -154,7 +154,7 @@ job=jks.getJobConfig('empty')
 print(version)
 '''
 '''
-server = jenkins.Jenkins('http://10.108.210.227:9999', username='admin', password='root!@#456')
+server = jenkins1.Jenkins('http://10.108.210.227:9999', username='admin', password='root!@#456')
 user = server.get_whoami()
 version = server.get_version()
 print('Hello %s from Jenkins %s' % (user['fullName'], version))

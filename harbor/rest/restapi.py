@@ -13,7 +13,7 @@ from harbor.rest import harbor as harbor_client
 
 from flask import request, jsonify, Blueprint
 
-from jenkins import create_image as build
+from jenkins1 import create_image as build
 
 logger = logging.getLogger(__name__)
 

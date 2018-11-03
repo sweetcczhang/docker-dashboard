@@ -12,6 +12,7 @@ from flask import jsonify, request, Blueprint
 jenkin = Blueprint('restBuild', __name__)
 
 
+@jenkin.route('/buildJob', methods=['GET', 'POST'])
 def build_job():
     return_model = {}
 
