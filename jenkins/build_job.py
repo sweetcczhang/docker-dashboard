@@ -48,7 +48,7 @@ def deleteJob():
 
 
 def buildJob():
-    if (request.method == 'POST'):
+    if request.method == 'POST':
         jobname = request.POST.get("jobname")
         result = {'result': jks.buildJob(jobname)}
         return jsonify(result)
@@ -59,7 +59,7 @@ def buildJob():
 
 
 def getBuildLog(request):
-    if (request.method == 'POST'):
+    if request.method == 'POST':
         jobname = request.POST.get("jobname")
         number = int(request.POST.get("number"))
         result = '<pre>' + jks.getBuildLog(jobname, number) + '</pre>'
@@ -72,7 +72,7 @@ def getBuildLog(request):
         return jsonify(result)
 
 
-def getJobXml(request):
+def get_job_xml(request):
     jobname = request.GET['jobname']
     result = jks.getJobConfig(jobname)
     print(result)
