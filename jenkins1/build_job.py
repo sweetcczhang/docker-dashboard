@@ -54,26 +54,25 @@ def get_version():
 def get_all_job():
     return_model = {}
     try:
-        result = jks.get_jobs()
-        print result
+        db = jenkins1.connect_db()
+        cur = db.cursor()
+        sql = "SELECT * FROM jenkins"
+        cur.execute(sql)
+        results = cur.fetchall()
+        data = []
+        for r in results:
+            temp = {'jobName': r[1], 'description': r[2], 'gitUrl': r[3], 'branches': r[5], 'timeTrigger': r[6],
+                    'gitlabTrigger': r[7], 'username': r[8], 'password': r[9]}
+            data.append(temp)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = data
     except Exception as e:
         print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '获取任务列表失败'
     return jsonify(return_model)
 
-# @jenkin.route('/')
-# def add_job_old():
-#     return_model = {}
-#     if request.method == 'POST':
-#         jobname = request.POST.get("jobname")
-#         # TODO根据数据自定义XML
-#         result = {'result': jks.createJob(jobname, jenkins.EMPTY_CONFIG_XML)}
-#         return jsonify(result)
-#     else:
-#         jobname = request.GET['jobname']
-#         result = {'result': jks.createJob(jobname, jenkins.EMPTY_CONFIG_XML)}
-#         return jsonify(result)
-
-    # return HttpResponse(json.dumps(result ), content_type="application/json")
 
 @jenkin.route('/deleteJob', methods=['GET', 'POST'])
 def delete_job():
@@ -81,11 +80,17 @@ def delete_job():
     job_name = request.values.get(key='jobName')
     try:
         result = jks.delete_job(name=job_name)
+        db =jenkins1.connect_db()
+        cur = db.cursor()
+        sql = "DELETE FROM jenkins WHERE job_name='%s'" % (job_name)
+        cur.execute(sql)
+        db.commit()
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         return_model['data'] = result
     except Exception as e:
         print e
+        db.rollback()
         return_model['retCode'] = 500
         return_model['retDesc'] = '删除失败'
     return jsonify(return_model)
@@ -112,7 +117,7 @@ def get_build_log():
     return_model = {}
     try:
         job_name = request.values.get("jobname")
-        number = int(request.values.get("number"))
+        number = int(request.values.get("number", default=1))
         result = jks.get_build_log(name=job_name, number=number)
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
@@ -326,7 +331,7 @@ def add_job():
         db = jenkins1.connect_db()
         cur = db.cursor()
         sql = "INSERT INTO jenkins(job_name,description,git_url,credentials_id,branches,timer_trigger," \
-              "gitlab_trigger,script,username,password) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"\
+              "gitlab_trigger,script,username,password) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"\
               % (job_name, description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger, script, username, password)
         cur.execute(sql)
         db.commit()
