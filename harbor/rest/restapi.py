@@ -13,7 +13,7 @@ from harbor.rest import harbor as harbor_client
 
 from flask import request, jsonify, Blueprint
 
-# from jenkins1 import create_image as build
+from jenkins1 import create_image as build
 
 logger = logging.getLogger(__name__)
 
@@ -38,25 +38,25 @@ def do_search():
     return jsonify(return_model)
 
 
-# @harbors.route('/buildImage', methods=['GET', 'POST'])
-# def build_image_from_file():
-#     return_model = {}
-#     image_name = request.values.get(key='imageName', default=None)
-#     label = request.values.get(key='label', default='latest')
-#     dockerfile = request.files['dockerfile']
-#     with open('Dockerfile', 'w') as f:
-#         f.write(dockerfile.read())
-#         f.close()
-#     try:
-#         result = build.image_build(image_name=image_name, version=label)
-#         return_model['retDesc'] = 'success'
-#         return_model['retCode'] = 200
-#         return_model['data'] = result
-#     except Exception as f:
-#         return_model['retDesc'] = '镜像构建失败'
-#         return_model['retCode'] = 500
-#         print(f)
-#     return jsonify(return_model)
+@harbors.route('/buildImage', methods=['GET', 'POST'])
+def build_image_from_file():
+    return_model = {}
+    image_name = request.values.get(key='imageName', default=None)
+    label = request.values.get(key='label', default='latest')
+    dockerfile = request.files['dockerfile']
+    with open('Dockerfile', 'w') as f:
+        f.write(dockerfile.read())
+        f.close()
+    try:
+        result = build.image_build(image_name=image_name, version=label)
+        return_model['retDesc'] = 'success'
+        return_model['retCode'] = 200
+        return_model['data'] = result
+    except Exception as f:
+        return_model['retDesc'] = '镜像构建失败'
+        return_model['retCode'] = 500
+        print(f)
+    return jsonify(return_model)
 
 
 @harbors.route('/buildImageStr', methods=['POST'])
