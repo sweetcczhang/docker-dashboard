@@ -80,7 +80,7 @@ def delete_job():
     job_name = request.values.get(key='jobName')
     try:
         result = jks.delete_job(name=job_name)
-        db =jenkins1.connect_db()
+        db = jenkins1.connect_db()
         cur = db.cursor()
         sql = "DELETE FROM jenkins WHERE job_name='%s'" % (job_name)
         cur.execute(sql)
@@ -147,6 +147,12 @@ def get_job_xml():
     return jsonify(return_model)
 
 
+@jenkin.route('/reConfigJob', methods=['GET', 'POST'])
+def re_config_job():
+    return_model = {}
+    return jsonify(return_model)
+
+
 @jenkin.route('/addJob', methods=['GET', 'POST'])
 def add_job():
     # 获取参数 None=null
@@ -163,6 +169,32 @@ def add_job():
     return_model = {}
 
     # 构建XML
+    doc = build_xml(description=description, git_url=git_url, credentials_id=credentials_id, branches=branches,
+                    timer_trigger=timer_trigger, gitlab_trigger=gitlab_trigger, script=script)
+
+    xml_config = doc.toxml()
+    print(xml_config)
+    try:
+        result = jks.create_job(job_name, doc.toxml())
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+        db = jenkins1.connect_db()
+        cur = db.cursor()
+        sql = "INSERT INTO jenkins(job_name,description,git_url,credentials_id,branches,timer_trigger," \
+              "gitlab_trigger,script,username,password) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"\
+              % (job_name, description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger, script, username, password)
+        cur.execute(sql)
+        db.commit()
+    except Exception as e:
+        print e
+        db.rollback()
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '创建job失败'
+    return jsonify(return_model)
+
+
+def build_xml(description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger, script):
     doc = xml.dom.minidom.Document()
     xmlroot = doc.createElement('project')
 
@@ -320,24 +352,4 @@ def add_job():
     xmlroot.appendChild(xml1buildWrappers)
 
     doc.appendChild(xmlroot)
-
-    xmlConfig = doc.toxml()
-    print(xmlConfig)
-    try:
-        result = jks.create_job(job_name, doc.toxml())
-        return_model['retCode'] = 200
-        return_model['retDesc'] = 'success'
-        return_model['data'] = result
-        db = jenkins1.connect_db()
-        cur = db.cursor()
-        sql = "INSERT INTO jenkins(job_name,description,git_url,credentials_id,branches,timer_trigger," \
-              "gitlab_trigger,script,username,password) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"\
-              % (job_name, description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger, script, username, password)
-        cur.execute(sql)
-        db.commit()
-    except Exception as e:
-        print e
-        db.rollback()
-        return_model['retCode'] = 500
-        return_model['retDesc'] = '创建job失败'
-    return jsonify(return_model)
+    return doc
