@@ -71,6 +71,8 @@ def get_all_job():
         print e
         return_model['retCode'] = 500
         return_model['retDesc'] = '获取任务列表失败'
+    finally:
+        db.close()
     return jsonify(return_model)
 
 
@@ -93,6 +95,8 @@ def delete_job():
         db.rollback()
         return_model['retCode'] = 500
         return_model['retDesc'] = '删除失败'
+    finally:
+        db.close()
     return jsonify(return_model)
 
 
@@ -149,7 +153,43 @@ def get_job_xml():
 
 @jenkin.route('/reConfigJob', methods=['GET', 'POST'])
 def re_config_job():
+    # 获取参数 None=null
+    job_name = request.values.get(key='jobname')
+    description = request.values.get(key='description', default=job_name)
+    git_url = request.values.get(key='gitURL')
+    credentials_id = request.values.get(key='credentialsId', default='')
+    branches = request.values.get(key='branches')
+    timer_trigger = request.values.get(key='TimerTrigger')
+    gitlab_trigger = request.values.get(key='gitlabTrigger')
+    script = request.values.get(key='script')
+    username = request.values.get(key='username')
+    password = request.values.get(key='password')
     return_model = {}
+
+    # 构建XML
+    doc = build_xml(description=description, git_url=git_url, credentials_id=credentials_id, branches=branches,
+                    timer_trigger=timer_trigger, gitlab_trigger=gitlab_trigger, script=script)
+    try:
+        jks.reconfig_job(job_name=job_name, config=doc.toxml())
+        db = jenkins1.connect_db()
+        cur = db.cursor()
+        sql = "UPDATE jenkins SET description='%s', git_url='%s', credentials_id='%s', branches='%s'," \
+              " timer_trigger='%s', gitlab_trigger='%s', script='%s',username='%s', password='%d' " \
+              "WHERE job_name='%s'" % (description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger,
+                                       script, username, password)
+        cur.execute(sql)
+        db.commit()
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+
+    except Exception as e:
+        print e
+        db.rollback()
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '更新失败'
+    finally:
+        db.close()
+
     return jsonify(return_model)
 
 
@@ -183,7 +223,9 @@ def add_job():
         cur = db.cursor()
         sql = "INSERT INTO jenkins(job_name,description,git_url,credentials_id,branches,timer_trigger," \
               "gitlab_trigger,script,username,password) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"\
-              % (job_name, description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger, script, username, password)
+              % (job_name, description, git_url, credentials_id, branches, timer_trigger, gitlab_trigger, script,
+                 username, password)
+
         cur.execute(sql)
         db.commit()
     except Exception as e:
@@ -191,6 +233,8 @@ def add_job():
         db.rollback()
         return_model['retCode'] = 500
         return_model['retDesc'] = '创建job失败'
+    finally:
+        db.close()
     return jsonify(return_model)
 
 
