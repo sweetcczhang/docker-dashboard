@@ -9,6 +9,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 from kube import pods_client
+from kube import name_space
 pods = Blueprint('kube', __name__)
 
 
@@ -161,3 +162,19 @@ def get_namespace_pod_status():
 
     except ApiException as e:
         print("Exception when calling CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
+
+
+@pods.route('/getAllNamespaces', methods=['GET', 'POST'])
+def get_all_namespaces():
+    return_model = {}
+    try:
+        result = name_space.list_all_namespace()
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = {'length': len(result),'namespaceList': result}
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '获取namespace列表失败'
+
+    return jsonify(return_model)

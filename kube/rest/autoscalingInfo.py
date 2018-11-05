@@ -14,7 +14,7 @@ from kube import scale_client
 autoscaling = Blueprint('autoscalingInfo', __name__)
 
 
-@autoscaling.route('/', methods=['GET', 'POST'])
+@autoscaling.route('/getAutoScaleList', methods=['GET', 'POST'])
 def get_auto_scale_list():
     return_model = {}
     namespace = request.values.get(key='namespace', default=None)
@@ -32,4 +32,31 @@ def get_auto_scale_list():
         print e
         return_model['retCode'] = 500
         return_model['retDesc'] = '查询失败'
+    return jsonify(return_model)
+
+
+@autoscaling.route('/createAutoScale', methods=['GET', 'POST'])
+def create_auto_scale():
+    return_model = {}
+    try:
+        namespace = request.values.get(key='namespaces', default='default')
+        name = request.values.get(key='name')
+        labels = request.values.get(key='labels')
+        deploy_name = request.values.get(key='deployName')
+        min_replicas = int(request.values.get(key='minReplicas', default=1))
+        max_replicas = int(request.values.get(key='maxReplicas', default=10))
+        metrics = request.values.get(key='metric')
+
+        result = scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=deploy_name,
+                                                min_replicas=min_replicas, max_replicas=max_replicas, metrics=metrics)
+        if result is not None:
+            return_model['retCode'] = 200
+            return_model['retDesc'] = 'success'
+        else:
+            raise Exception('创建自动伸缩器失败')
+
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '创建自动伸缩器失败'
     return jsonify(return_model)

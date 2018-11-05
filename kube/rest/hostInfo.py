@@ -42,7 +42,7 @@ def get_host_info():
     return jsonify(return_model)
 
 
-@hosts.route('/getHostDetail')
+@hosts.route('/getHostDetail', methods=['GET', 'POST'])
 def get_host_detail():
     """
     获取主机详细信息
@@ -65,7 +65,7 @@ def get_host_detail():
             return_model['data'] = None
     except Exception as e:
         print e
-    return return_model
+    return jsonify(return_model)
 
 
 @hosts.route('/getClusterInfo', methods=['GET', 'POST'])

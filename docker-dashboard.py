@@ -65,7 +65,9 @@ def docker_terminal():
 
 @app.route('/hosts')
 def host_terminal():
-    return render_template('index1.html')
+    ip = request.values.get(key='ip')
+    print ip
+    return render_template('index1.html', ip=ip)
 
 
 @sockets.route('/zcc')

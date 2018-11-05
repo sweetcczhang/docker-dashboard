@@ -34,6 +34,8 @@ class HostInfo(basic.Client):
                 create_time = s[:len(s) - 6]
                 name = i.metadata.name
                 host_ip = i.spec.external_id
+                if host_ip is None:
+                    host_ip = name
                 status = 'NotReady'
                 os = i.status.node_info.os_image
                 docker_version = i.status.node_info.container_runtime_version
