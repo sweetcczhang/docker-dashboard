@@ -85,6 +85,8 @@ def docker_socket(ws):
     namespace = request.values.get(key='namespace', default='default')
     client = KubernetesClient()
     resp = client.get_pod_exec(name=pod_name, namespace=namespace)
+    if resp is None:
+        print '获取命名空间为%s，名称为%s的docker容器的shell失败'
     print 'pod has been created.......'
     thread_stream = StreamThread(ws=ws, resp=resp)
     thread_stream.start()

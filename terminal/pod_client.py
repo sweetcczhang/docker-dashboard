@@ -14,6 +14,7 @@ from kubernetes.client import Configuration
 from kubernetes.client.apis import core_v1_api
 from kubernetes.client.rest import ApiException
 from kubernetes.stream import stream
+from kube import pods_client
 
 
 class KubernetesClient(object):
@@ -31,7 +32,7 @@ class KubernetesClient(object):
             resp = api.read_namespaced_pod(name=name, namespace=namespace)
         except ApiException as e:
             if e.status != 404:
-                print ("Unknown error: %s" %e)
+                print ("Unknown error: %s" % e)
                 exit(1)
 
             if not resp:
@@ -73,14 +74,30 @@ class KubernetesClient(object):
 
         # Calling exec interactively.
         print 'pod_client: ' + name + ' ' + namespace
-        print 'hello'
-        resp = stream(api.connect_get_namespaced_pod_exec,
-                      name=name,
-                      namespace=namespace,
-                      container='nodedemosub',
-                      command=exec_command,
-                      stderr=True, stdin=True,
-                      stdout=True, tty=True,
-                      _preload_content=False)
-        print 'world'
+        try:
+            response = pods_client.get_pod_details(name=name, namespace=namespace)
+            container = response.spec.containers
+            names = []
+            for c in container:
+                names.append(c.name)
+
+            if len(names) == 1:
+                resp = stream(api.connect_get_namespaced_pod_exec,
+                              name=name,
+                              namespace=namespace,
+                              command=exec_command,
+                              stderr=True, stdin=True,
+                              stdout=True, tty=True,
+                              _preload_content=False)
+            else:
+                resp = stream(api.connect_get_namespaced_pod_exec,
+                              name=name,
+                              namespace=namespace,
+                              container=names[0],
+                              command=exec_command,
+                              stderr=True, stdin=True,
+                              stdout=True, tty=True,
+                              _preload_content=False)
+        except ApiException as e:
+            print e
         return resp
