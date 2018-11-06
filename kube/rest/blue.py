@@ -124,7 +124,7 @@ def get_pod_detail():
     return jsonify(return_model)
 
 
-@pods.route('/getPodLog')
+@pods.route('/getPodLog', methods=['GET', 'POST'])
 def get_namespaced_pod_log():
     """
     :return:
@@ -151,7 +151,7 @@ def get_namespaced_pod_log():
     return jsonify(return_model)
 
 
-@pods.route('/status')
+@pods.route('/status', methods=['GET', 'POST'])
 def get_namespace_pod_status():
 
     v1 = config1()

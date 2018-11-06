@@ -24,11 +24,11 @@ class KubernetesClient(object):
         Configuration.set_default(c)
         self.api = core_v1_api.CoreV1Api()
 
-    def get_pod_exec(self, name):
+    def get_pod_exec(self, name, namespace):
         api = self.api
         resp = None
         try:
-            resp = api.read_namespaced_pod(name=name, namespace='default')
+            resp = api.read_namespaced_pod(name=name, namespace=namespace)
         except ApiException as e:
             if e.status != 404:
                 print ("Unknown error: %s" %e)
@@ -72,9 +72,15 @@ class KubernetesClient(object):
             '/usr/bin/script -q -c "/bin/bash" /dev/null || exec /bin/bash) || exec /bin/sh']
 
         # Calling exec interactively.
-        resp = stream(api.connect_get_namespaced_pod_exec, name, 'default',
+        print 'pod_client: ' + name + ' ' + namespace
+        print 'hello'
+        resp = stream(api.connect_get_namespaced_pod_exec,
+                      name=name,
+                      namespace=namespace,
+                      container='nodedemosub',
                       command=exec_command,
                       stderr=True, stdin=True,
                       stdout=True, tty=True,
                       _preload_content=False)
+        print 'world'
         return resp

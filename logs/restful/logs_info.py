@@ -12,7 +12,7 @@ from logs import nodeLogs, podLogs
 logs = Blueprint('logs_info', __name__)
 
 
-@logs.route("/getNodeLogs")
+@logs.route("/getNodeLogs", methods=['GET', 'POST'])
 def get_node_logs():
     return_model = {}
     host_ip = request.values.get(key='hostIp', default=None)
@@ -24,7 +24,7 @@ def get_node_logs():
     return jsonify(return_model)
 
 
-@logs.route("/getPodLogs")
+@logs.route("/getPodLogs", methods=['GET', 'POST'])
 def get_pod_logs():
     return_model = {}
     namespace = request.args.get(key='namespace', default='default')

@@ -60,7 +60,10 @@ def test1():
 
 @app.route('/docker', methods=['GET', 'POST'])
 def docker_terminal():
-    return render_template('index.html')
+    pod_name = request.values.get(key="name")
+    namespace = request.values.get(key='namespace', default='default')
+    print pod_name, namespace
+    return render_template('index.html', name=pod_name, namespace=namespace)
 
 
 @app.route('/hosts')
@@ -78,9 +81,10 @@ def docker_socket(ws):
     :return:
     """
     print "Web socket is start......"
-    pod_name = request.args.get("name")
+    pod_name = request.values.get(key="name")
+    namespace = request.values.get(key='namespace', default='default')
     client = KubernetesClient()
-    resp = client.get_pod_exec(name=pod_name)
+    resp = client.get_pod_exec(name=pod_name, namespace=namespace)
     print 'pod has been created.......'
     thread_stream = StreamThread(ws=ws, resp=resp)
     thread_stream.start()

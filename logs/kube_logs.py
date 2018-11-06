@@ -63,7 +63,7 @@ class KubeLogs(object):
             for v2 in v1:
                 date = datetime.strptime(v2['time'], "%Y-%m-%dT%H:%M:%SZ")
                 local = date + timedelta(hours=8)
-                time.append(datetime.strftime(local, '%Y-%m-%d %H:%M:%S'))
+                time.append(datetime.strftime(local, '%H:%M'))
                 used.append(v2['sum'])
         return used, time
 

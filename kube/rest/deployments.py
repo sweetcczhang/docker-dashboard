@@ -14,7 +14,7 @@ from kube.rest import configKube as conf
 deploy = Blueprint('deployments', __name__)
 
 
-@deploy.route('/updateDeployment')
+@deploy.route('/updateDeployment', methods=['GET', 'POST'])
 def update_deployment():
     return_model = {}
     name = request.values.get(key='name')  # deployment的名称

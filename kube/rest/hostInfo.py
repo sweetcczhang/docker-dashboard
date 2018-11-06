@@ -19,7 +19,7 @@ from yamls_location_config import YAML_LOC
 hosts = Blueprint('hostInfo', __name__)
 
 
-@hosts.route('/getHostList')
+@hosts.route('/getHostList', methods=['GET', 'POST'])
 def get_host_info():
     """
     获取主机列表信息
@@ -128,7 +128,7 @@ def upload_file():
         print e
 
 
-@hosts.route('/getJson', methods=['POST'])
+@hosts.route('/getJson', methods=['POST', 'GET'])
 def get_json_from_value():
     return_model = {}
     jsons = request.values.get(key='json', deploys=None)
@@ -146,7 +146,7 @@ def get_json_from_value():
     return jsonify(return_model)
 
 
-@hosts.route('/getYaml', methods=['POST'])
+@hosts.route('/getYaml', methods=['POST', 'GET'])
 def get_yaml_from_value():
 
     return_model = {}

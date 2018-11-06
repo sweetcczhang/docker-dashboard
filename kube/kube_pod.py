@@ -26,7 +26,7 @@ class Pods(basic.Client):
         pod_detail = {}
         try:
             api = self.v1_client.read_namespaced_pod(name=name, namespace=namespace)
-
+            print api
             pod_detail = self.pod_detail(pod=api)
 
         except ApiException as e:
@@ -171,8 +171,10 @@ class Pods(basic.Client):
 if __name__ == '__main__':
     v1 = Pods()
     print "zcc"
-    #v1.get_pod_from_node(field_selector='10.108.211.22')
-    v1.get_all_pods()
+    v1.get_pod_details(name='nodedemo-deployment-65f968bdf4-2fv56', namespace='default')
+    # v1.get_pod_details(namespace=)
+    # v1.get_pod_from_node(field_selector='10.108.211.22')
+    # v1.get_all_pods()
     # v1.get_pod_log(name='nginx-774d74897-v7v2f')
     # v1.get_watch(name='nginx-774d74897-v7v2f')
     # v1.get_watch()

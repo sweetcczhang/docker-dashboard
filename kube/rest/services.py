@@ -36,7 +36,7 @@ def create_service():
     return jsonify(return_model)
 
 
-@service_s.route('/get_service_detail')
+@service_s.route('/get_service_detail', methods=['GET', 'POST'])
 def get_service_details():
     """
     获取某个service的具体信息内容
@@ -75,7 +75,7 @@ def get_service_from_field_label():
     return jsonify(return_model)
 
 
-@service_s.route('/get_service_by_namespace')
+@service_s.route('/get_service_by_namespace', methods=['GET', 'POST'])
 def get_service_by_namespace():
     """
     获取某个命名空间中所有的服务
@@ -122,7 +122,7 @@ def get_service_by_namespace():
     return jsonify(return_model)
 
 
-@service_s.route('/getServices')
+@service_s.route('/getServices', methods=['GET', 'POST'])
 def get_service_info():
     """
     获取集群中所有的service的信息

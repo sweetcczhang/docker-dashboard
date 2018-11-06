@@ -9,6 +9,8 @@
 """
 
 from logs import kube_logs
+import threading
+LOCK = threading.RLock()
 
 
 class PodLogs(kube_logs.KubeLogs):
@@ -28,6 +30,7 @@ class PodLogs(kube_logs.KubeLogs):
         :param pod_name:
         :return:
         """
+        LOCK.acquire()
         res = {}
         print(namespace)
         print(pod_name)
@@ -69,8 +72,15 @@ class PodLogs(kube_logs.KubeLogs):
         memory的使用情况
         """
         (used, time) = self.pod_query("memory/usage", namespace, pod_name)
-        res["memory"]["usage"].setdefault("sum", used)
-        res["memory"]["usage"].setdefault("time", time)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / (1024.0 * 1024.0 * 2.0)
+            use.append(c)
+        res["memory"]["usage"].setdefault("sum", use)
+        res["memory"]["usage"].setdefault("time", time[1:])
 
         # (used, time) = self.pod_query("memory/limit", namespace, pod_name)
         # res["memory"]["limit"].setdefault("sum", used)
@@ -99,11 +109,19 @@ class PodLogs(kube_logs.KubeLogs):
         文件系统的使用情况
         """
         (used, time) = self.pod_query("filesystem/usage", namespace, pod_name)
-        res["filesystem"]["usage"].setdefault("sum", used)
-        res["filesystem"]["usage"].setdefault("time", time)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / (1024.0 * 1024.0 * 2.0)
+            use.append(c)
+        res["filesystem"]["usage"].setdefault("sum", use)
+        res["filesystem"]["usage"].setdefault("time", time[1:])
 
         (used, time) = self.pod_query("filesystem/limit", namespace, pod_name)
         res["filesystem"]["limit"].setdefault("sum", used)
         res["filesystem"]["limit"].setdefault("time", time)
+        LOCK.release()
 
         return res
