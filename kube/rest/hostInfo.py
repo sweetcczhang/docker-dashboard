@@ -42,6 +42,22 @@ def get_host_info():
     return jsonify(return_model)
 
 
+@hosts.route('/search', methods=['GET', 'POST'])
+def search():
+    return_model = {}
+    host_name = request.values.get(key='hostName')
+    try:
+        host_detail = hostInfo.get_host_by_hostname(host_name=host_name)
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = [host_detail]
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '查询%s主机失败', host_name
+    return jsonify(return_model)
+
+
 @hosts.route('/getHostDetail', methods=['GET', 'POST'])
 def get_host_detail():
     """

@@ -12,6 +12,7 @@ from kube import basic
 from kubernetes.client.rest import ApiException
 from kubernetes import client
 import os
+import json
 
 
 class Services(basic.Client):
@@ -28,15 +29,17 @@ class Services(basic.Client):
                 services_list = self.v1_client.list_service_for_all_namespaces().items
             else:
                 services_list = self.v1_client.list_namespaced_service(namespace=namespace,).items
+            print services_list
             for i in services_list:
                 name = i.metadata.name
                 namespace = i.metadata.namespace
-                label = i.metadata.labels
+                label = i.spec.selector
                 labels = ''
                 if label is not None:
                     for key, value in label.items():
                         labels = labels + key + '=' + value + ','
                     labels = labels.encode('utf-8')
+                    labels = labels[:len(labels)-1]
                 cluster_ip = i.spec.cluster_ip
                 hello = i.spec.type
                 ports = i.spec.ports
@@ -56,7 +59,7 @@ class Services(basic.Client):
 
         return len(lists), lists
 
-    def create_service(self, name, labels, namespace='default', port_type=None, s_port=None, selector=None):
+    def create_service(self, name, labels, namespace='default', port_type=None, s_port=None, selectors=None):
         """
         一个service主要分为三部分：
         元数据:metadata
@@ -78,25 +81,46 @@ class Services(basic.Client):
         """
         metadata = client.V1ObjectMeta()
         metadata.name = name
-        metadata.labels = labels
+        label = {}
+        labels = json.loads(labels)
+        for l in labels:
+            label[l['key']] = l['value']
+        print label
+        metadata.labels = label
 
         """
         构造spec部分的数据
         """
         s_spec = client.V1ServiceSpec()
         s_spec.type = port_type
+        selector = {}
+
+        selectors = json.loads(selectors)
+        selector[selectors['key']] = selectors['value']
+        print selector
         s_spec.selector = selector
         ports = []
+
+        s_port = json.loads(s_port)
         for p in s_port:
-            v_port = client.V1ServicePort(name=p['name'], node_port=p['nodePort'], port=p['port'],
-                                          target_port=p['targetPort'],
-                                          protocol=p['protocol'])
+            node_port = int(p['nodePort'])
+            port = int(p['port'])
+            target_port = int(p['targetPort'])
+            if node_port != 0:
+                v_port = client.V1ServicePort(node_port=node_port, port=port,
+                                              target_port=target_port,
+                                              protocol='TCP')
+            else:
+                v_port = client.V1ServicePort(port=port,
+                                              target_port=target_port,
+                                              protocol='TCP')
             ports.append(v_port)
+        print ports
 
         s_spec.ports = ports
         service.metadata = metadata
         service.spec = s_spec
-
+        print service
         self.v1_client.create_namespaced_service(namespace=namespace, body=service)
 
     def get_service_detail(self, name, namespace='default'):

@@ -59,6 +59,35 @@ class HostInfo(basic.Client):
 
         return len(node_list), node_list, ready_num, not_ready_num
 
+    def get_host_by_hostname(self, host_name):
+        try:
+            api_response = self.v1_client.read_node_status(name=host_name)
+            print api_response
+            s = str(api_response.metadata.creation_timestamp)
+            create_time = s[:len(s) - 6]
+            name = api_response.metadata.name
+            host_ip = api_response.spec.external_id
+            if host_ip is None:
+                host_ip = name
+            status = 'NotReady'
+            os = api_response.status.node_info.os_image
+            docker_version = api_response.status.node_info.container_runtime_version
+            cpu = api_response.status.capacity[u'cpu']
+            memory = api_response.status.capacity[u'memory']
+            memory = memory[:len(memory) - 2]
+            memory = int(memory) / 1024
+            memory = str(memory) + 'Mi'
+            status_1 = api_response.status.conditions[-1].status
+            if status_1 == 'True':
+                status = 'Ready'
+
+            temp = {'name': name, 'hostIp': host_ip, 'status': status, 'os': os, 'dockerVersion': docker_version,
+                    'cpu': cpu, 'memory': memory, 'createTime': create_time}
+            return temp
+        except ApiException as e:
+            print e
+            return temp
+
     def host_detail(self, host_name):
         try:
             api_response = self.v1_client.read_node_status(name=host_name)

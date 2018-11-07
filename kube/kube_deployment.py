@@ -28,6 +28,8 @@ class Deployments(basic.Client):
                 deploy = self.ext_client.list_deployment_for_all_namespaces()
             else:
                 deploy = self.ext_client.list_namespaced_deployment(namespace=namespace)
+
+            print deploy
             for i in deploy.items:
                 # print i.metadata.name
                 name = i.metadata.name
@@ -207,4 +209,4 @@ class Deployments(basic.Client):
 
 if __name__ == '__main__':
     ext = Deployments()
-    ext.get_deployment_detail(name='nginx')
+    ext.get_all_deployment()

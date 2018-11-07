@@ -14,18 +14,27 @@ service_s = Blueprint('services', __name__)
 
 @service_s.route('/createService', methods=['GET', 'POST'])
 def create_service():
-    v1 = conf.get_core_v1_api()
     return_model = {}
-    name = request.args.get(key='name')
-    namespace = request.args.get(key='namespace', default='default')
+    serivce_data = request.values.get('serviceData', 'zcc')
+    print 'serivce_data:' + serivce_data
+    name = request.values.get(key='name')
+    print name
+    namespace = request.values.get(key='namespace', default='default')
+    print namespace
     labels = request.values.get(key='labels', default=None)
+    labels = labels.encode('utf-8')
     port_type = request.values.get(key='portType', default=None)
     v_port = request.values.get(key='ports', default=None)
+    v_port = v_port.encode('utf-8')
     selector = request.values.get(key='selector', default=None)
+    selector = selector.encode('utf-8')
+    print labels
+    print v_port
+    print selector
 
     try:
         service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
-                                      s_port=v_port, selector=selector)
+                                      s_port=v_port, selectors=selector)
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         print return_model
@@ -148,7 +157,7 @@ def get_service_info():
 @service_s.route('/deleteService', methods=['GET', 'POST'])
 def delete_service():
     return_model = {}
-    name = request.values.get(key='value', default=None)
+    name = request.values.get(key='name', default=None)
     namespace = request.values.get(key='namespace', default='default')
     try:
         result = service_client.delete_service(name=name, namespace=namespace)

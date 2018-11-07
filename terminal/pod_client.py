@@ -75,7 +75,7 @@ class KubernetesClient(object):
         # Calling exec interactively.
         print 'pod_client: ' + name + ' ' + namespace
         try:
-            response = pods_client.get_pod_details(name=name, namespace=namespace)
+            response = api.read_namespaced_pod(name=name, namespace=namespace)
             container = response.spec.containers
             names = []
             for c in container:
