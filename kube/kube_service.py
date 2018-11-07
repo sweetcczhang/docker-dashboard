@@ -29,7 +29,7 @@ class Services(basic.Client):
                 services_list = self.v1_client.list_service_for_all_namespaces().items
             else:
                 services_list = self.v1_client.list_namespaced_service(namespace=namespace,).items
-            print services_list
+
             for i in services_list:
                 name = i.metadata.name
                 namespace = i.metadata.namespace
@@ -151,9 +151,9 @@ class Services(basic.Client):
             create_time = api_response.metadata.creation_timestamp
             create_time = str(create_time)
             create_time = create_time[:len(create_time)-6]
+
             service_detail = {"name": name, "namespace": namespace, "labels": labels, "clusterIp": cluster_ip,
                               "type": hello, "port": port, "createTime": create_time}
-            print create_time
             print service_detail
         except ApiException as e:
             print e

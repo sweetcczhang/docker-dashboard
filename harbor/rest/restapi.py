@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 harbors = Blueprint('restapi', __name__)
 
 
+@harbors.route('/search', methods=['GET', 'POST'])
 def do_search():
     """Search for projects and repositories."""
     return_model = {}
@@ -41,9 +42,13 @@ def do_search():
 @harbors.route('/buildImage', methods=['GET', 'POST'])
 def build_image_from_file():
     return_model = {}
-    image_name = request.values.get(key='imageName', default=None)
+    image_name = request.values.get(key='imageName', default='zcc')
     label = request.values.get(key='label', default='latest')
-    dockerfile = request.files['dockerfile']
+    print(image_name)
+    print(label)
+    # image_name = 'tes'
+    # label = 'v1'
+    dockerfile = request.files['file']
     with open('Dockerfile', 'w') as f:
         f.write(dockerfile.read())
         f.close()
@@ -64,9 +69,11 @@ def build_image_from_str():
     return_model = {}
     image_name = request.values.get(key='imageName', default=None)
     label = request.values.get(key='label', default='latest')
+    description = request.values.get(key='description', default=None)
     dockerfile = request.values.get('dockerfile', default=None)
+    dockerfile = dockerfile.encode('utf-8')
     with open('Dockerfile', 'w') as f:
-        f.write(dockerfile.read())
+        f.write(dockerfile)
         f.close()
     try:
         result = build.image_build(image_name=image_name, version=label)
@@ -198,5 +205,5 @@ def get_image_list():
 
 
 if __name__ == "__main__":
-    # get_image_list()
-    get_harbor_logs()
+    get_image_list()
+    # get_harbor_logs()

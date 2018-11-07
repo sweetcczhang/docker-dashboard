@@ -21,8 +21,10 @@ from logs.restful.logs_info import logs
 from jenkins1.build_job import jenkin
 import confHarbor
 import yaml
+from flask_cors import *
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 sockets = Sockets(app)
 app.register_blueprint(pods, url_prefix='/admin')
 app.register_blueprint(hosts, url_prefix='/host')

@@ -27,16 +27,17 @@ def image_build(image_name, version):
     # f = open('Dockerfile', 'w')
     # f.write(dockerfile.read())
     # f.close()
-
-    command = 'docker login ' + confHarbor.HARBOR_URL+' -p ' + confHarbor.HARBOR_PASSWORD+' -u ' +\
+    print image_name, version
+    command = 'docker login ' + confHarbor.HARBOR_SERVER+' -p ' + confHarbor.HARBOR_PASSWORD+' -u ' +\
               confHarbor.HARBOR_USERNAME
+    print command
     os.system(command)
 
-    command = 'docker build -t '+confHarbor.HARBOR_URL+'/library/' + image_name + ':' + version + ' .'
+    command = 'docker build -t '+confHarbor.HARBOR_SERVER+'/library/' + image_name + ':' + version + ' .'
     print(command)
     output = os.popen(command)
     result = output.read()
-    command = 'docker push ' + confHarbor.HARBOR_URL + '/library/' + image_name + ':' + version
+    command = 'docker push ' + confHarbor.HARBOR_SERVER + '/library/' + image_name + ':' + version
     output = os.popen(command)
     result += output.read()
     print(result)
