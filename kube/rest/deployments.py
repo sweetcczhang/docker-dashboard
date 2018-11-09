@@ -100,21 +100,56 @@ def create_deployment():
     :return:
     """
     return_model = {}
+    """
+    first part
+    """
     name = request.values.get(key='name')   # deployment的名称
     namespace = request.values.get(key='namespace', default='default')    # 命名空间
-
     replicas = request.values.get(key='replicas', default=1)  # 副本的数量
     image = request.values.get(key='image', default=None)   # 镜像名称
-    # container_port = request.args.get("containerPort")  # 容器的端口
+    host_name = request.values.get(key='hostName', default=None)
+    cpu = request.values.get(key='cpu', default=None)
+    memory = request.values.get(key='memory')
+    log = request.values.get(key='log')
     labels = request.values.get(key='labels', default=None)  # deployment标签
+    is_start = request.values.get(key='isStart')
 
-    container_name = request.values.get(key='containerName', default=name)    # 容器的名称
-    ports = request.values.get(key='ports', default=None)  # 容器的端口
-    template_labels = request.values.get(key='templateLabels', default=labels)    # templateLabels
-    resources = request.values.get(key='resources', default=None)  # 资源限制
+    """
+    second part
+    """
+    container_port = request.values.get("containerPort")  # 容器的端口
+    volumn = request.values.get(key='volumn', default=None)
+
+    """
+    third part
+    """
     commands = request.values.get(key='commands', default=None)
-    args = request.values.get(key='args', default=None)
     env = request.values.get(key='env', default=None)
+    args = request.values.get(key='args', default=None)
+
+    """
+    fourth part
+    """
+    is_service = request.values.get(key='isService', default='true')
+    port_type = request.values.get(key='portType', default='NodePort')
+    service_port = request.values.get(key='servicePort')
+
+    """
+    fifth part
+    """
+    is_auto = request.values.get(key='isAuto', default='true')
+
+    auto_cpu = request.values.get(key='autoCpu', default=100)
+
+    auto_memory = request.values.get(key='autoMemory', default=100)
+
+    customer = request.values.get(key='customer', default=None)
+
+
+
+
+
+
 
     service_port = request.values.get(key='servicePort', default=None)
 
@@ -124,12 +159,13 @@ def create_deployment():
         return_model['retCode'] = 500
         return_model['retDesc'] = '参数错误，镜像不能为空'
         return jsonify(return_model)
-    deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
-                                                container_name=container_name, ports=ports,
-                                                template_labels=template_labels,
-                                                replicas=replicas, resources=resources, commands=commands, args=args, env=env)
+    # deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
+    #                                             container_name=container_name, ports=ports,
+    #                                             template_labels=template_labels,
+    #                                             replicas=replicas, resources=resources, commands=commands, args=args,
+    #                                             env=env)
     try:
-        result = deploys.create_deployment(deployment=deployment, namespace=namespace)
+        result = True # deploys.create_deployment(deployment=deployment, namespace=namespace)
         if result:
             return_model['retCode'] = 200
             return_model['retDesc'] = 'success'

@@ -65,12 +65,14 @@ class Deployments(basic.Client):
         deploy = {}
         try:
             api_response = self.ext_client.read_namespaced_deployment(name=name, namespace=namespace)
+            print api_response
             name = api_response.metadata.name
             labels = api_response.metadata.labels
             label = ''
-            for key, value in labels.items():
-                label = label + key.encode('utf-8') + ":" + value + ","
-            label = label[:len(label)-1]
+            if labels is not None:
+                for key, value in labels.items():
+                    label = label + key.encode('utf-8') + ":" + value + ","
+                label = label[:len(label)-1]
             create_time = api_response.metadata.creation_timestamp
             now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
             days = (now_time - create_time).days
@@ -209,4 +211,4 @@ class Deployments(basic.Client):
 
 if __name__ == '__main__':
     ext = Deployments()
-    ext.get_all_deployment()
+    ext.get_deployment_detail(name='nodedemo-deployment', namespace='default')

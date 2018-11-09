@@ -130,13 +130,13 @@ def get_namespaced_pod_log():
     :return:
     """
     return_model = {}
-    v1 = config1()
+
     name = request.args.get('name')
-    tail_lines = request.args.get('tail_lines', 100)
+    tail_lines = int(request.args.get('tail_lines', 100))
     namespace = request.args.get('namespace', default='default')
     print ("Listing pods with their ips:")
     try:
-        resouce = v1.read_namespaced_pod_log(name=name, namespace=namespace, tail_lines=tail_lines)
+        resouce = pods_client.get_pod_log(name=name, namespace=namespace, tail_lines=tail_lines)
         pprint(resouce)
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'

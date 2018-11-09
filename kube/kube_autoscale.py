@@ -69,7 +69,7 @@ class AutoScale(basic.Client):
                         'maxReplicas': max_replicas, 'target': target, 'CurrentReplicas': current_replicas,
                         'namespace': space}
                 lists.append(temp)
-            print (api_response)
+                print temp
         except ApiException as e:
             print("Exception when calling AutoscalingV1Api->list_horizontal_pod_autoscaler_for_all_namespaces: %s\n" % e)
             return None
@@ -117,6 +117,6 @@ class AutoScale(basic.Client):
             return None
 
 
-# if __name__ == '__main__':
-#     auto = AutoScale()
-#     auto.list_auto_scaling()
+if __name__ == '__main__':
+    auto = AutoScale()
+    auto.list_auto_scaling()

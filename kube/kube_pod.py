@@ -123,7 +123,7 @@ class Pods(basic.Client):
             print e
         return result
 
-    def get_pod_log(self, name, namespace='default'):
+    def get_pod_log(self, name, namespace='default', tail_lines=100):
         """
         获取指定pod的日志以str的形式返回
         :param name:
@@ -132,7 +132,7 @@ class Pods(basic.Client):
         """
         log = ''
         try:
-            log = self.v1_client.read_namespaced_pod_log(name=name, namespace=namespace)
+            log = self.v1_client.read_namespaced_pod_log(name=name, namespace=namespace, tail_lines=tail_lines)
             print log
         except ApiException as e:
             print e
@@ -149,7 +149,8 @@ class Pods(basic.Client):
         :param namespace:
         :return:
         """
-        field_selector = 'spec.nodeName=' + field_selector
+        if field_selector is  not None:
+            field_selector = 'spec.nodeName=' + field_selector
         lists = []
         length = 0
         try:
@@ -171,10 +172,11 @@ class Pods(basic.Client):
 if __name__ == '__main__':
     v1 = Pods()
     print "zcc"
-    v1.get_pod_details(name='nodedemo-deployment-65f968bdf4-2fv56', namespace='default')
+    # v1.get_pod_details(name='nodedemo-deployment-65f968bdf4-2fv56', namespace='default')
+    # v1.get_pod_from_label_or_field(label_selector='app=jenkinstest')
+
     # v1.get_pod_details(namespace=)
     # v1.get_pod_from_node(field_selector='10.108.211.22')
     # v1.get_all_pods()
-    # v1.get_pod_log(name='nginx-774d74897-v7v2f')
-    # v1.get_watch(name='nginx-774d74897-v7v2f')
+    v1.get_pod_log(name='nginx-deployment-6f59494b58-6hp8t')
     # v1.get_watch()
