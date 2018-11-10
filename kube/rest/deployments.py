@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request
 from kube import deploys
 from kube import service_client
 from kube import scale_client
+from kube import pods_client
 
 deploy = Blueprint('deployments', __name__)
 
@@ -42,9 +43,23 @@ def get_deployment_detail():
         return jsonify(return_model)
     try:
         deployment = deploys.get_deployment_detail(name=name, namespace=namespace)
+        label_select = deployment['selectors']
+        label = []
+        for key, value in label_select.items():
+            temp = key + '=' + value
+            label.append(temp)
+        pod_list = pods_client.get_pod_from_label_or_field(label_selector=label[0], namespace=namespace)
+        serivce_detail = service_client.get_service_from_label_selector(label_selector=label[0], namespace=namespace)
+        auto_scale = scale_client.get_auto_scaling_detail(name=name, namespace=namespace)
+        data = {
+            'deployment': deployment,
+            'podList': pod_list,
+            'service': serivce_detail,
+            'autoScale': auto_scale
+        }
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
-        return_model['data'] = deployment
+        return_model['data'] = data
     except Exception as e:
         return_model['retCode'] = 500
         return_model['retDesc'] = '请检查参数是否正确'

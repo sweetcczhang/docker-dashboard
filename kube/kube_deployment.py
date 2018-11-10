@@ -90,7 +90,7 @@ class Deployments(basic.Client):
             replicas_available = api_response.status.available_replicas
             deploy = {'name': name, 'namespace': namespace, 'label': label, 'days': days,
                       'createTime': create_time, 'selector': selector, 'replicaName': replica_name,
-                      'replicasNum': replicas, 'replicasAvailable': replicas_available}
+                      'replicasNum': replicas, 'replicasAvailable': replicas_available, 'selectors': selectors}
             print deploy
         except ApiException as e:
             print e

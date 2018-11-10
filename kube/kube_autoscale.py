@@ -67,6 +67,7 @@ class AutoScale(basic.Client):
                 'metrics': metrics
             }
         }
+        print body
         try:
             result = self.auto_client.create_namespaced_horizontal_pod_autoscaler(namespace=namespace, body=body)
             return result
@@ -81,6 +82,7 @@ class AutoScale(basic.Client):
                 api_response = self.auto_client.list_horizontal_pod_autoscaler_for_all_namespaces().items
             else:
                 api_response = self.auto_client.list_namespaced_horizontal_pod_autoscaler(namespace=namespace).items
+            print api_response
             for api in api_response:
                 create_time = api.metadata.creation_timestamp
                 now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
@@ -146,7 +148,18 @@ class AutoScale(basic.Client):
             print e
             return None
 
+    def get_auto_scale_from_field_selector(self, field_selector, namespace='default'):
+        try:
+            api = self.auto_client.list_namespaced_horizontal_pod_autoscaler(namespace=namespace,
+                                                                             field_selector=field_selector)
+            print api
+
+        except Exception as e:
+            print e
+
 
 if __name__ == '__main__':
     auto = AutoScale()
     auto.list_auto_scaling()
+    auto.get_auto_scale_from_field_selector(field_selector='spec.scaleTargetRef.name=jenkinstest-deployment',
+                                            namespace='default')

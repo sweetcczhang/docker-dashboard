@@ -149,7 +149,7 @@ class Pods(basic.Client):
         :param namespace:
         :return:
         """
-        if field_selector is  not None:
+        if field_selector is not None:
             field_selector = 'spec.nodeName=' + field_selector
         lists = []
         length = 0
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     # v1.get_pod_from_label_or_field(label_selector='app=jenkinstest')
 
     # v1.get_pod_details(namespace=)
-    # v1.get_pod_from_node(field_selector='10.108.211.22')
+    v1.get_pod_from_label_or_field(field_selector='10.108.210.194')
     # v1.get_all_pods()
-    v1.get_pod_log(name='nginx-deployment-6f59494b58-6hp8t')
+    # v1.get_pod_log(name='nginx-deployment-6f59494b58-6hp8t')
     # v1.get_watch()

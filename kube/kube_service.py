@@ -29,7 +29,7 @@ class Services(basic.Client):
                 services_list = self.v1_client.list_service_for_all_namespaces().items
             else:
                 services_list = self.v1_client.list_namespaced_service(namespace=namespace,).items
-
+            print services_list
             for i in services_list:
                 name = i.metadata.name
                 namespace = i.metadata.namespace
