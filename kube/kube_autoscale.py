@@ -17,8 +17,34 @@ import pytz
 
 class AutoScale(basic.Client):
 
-    def create_auto_scale(self, namespace, name, labels, deploy_name, min_replicas, max_replicas, metrics):
+    def create_auto_scale(self, namespace, name, labels, deploy_name, min_replicas, max_replicas,
+                          cpu, memory, customer):
 
+        metrics = []
+        if cpu != 0:
+            cpu_metric = {
+                'type': 'Resource',
+                'Resource': {
+                    'name': 'cpu',
+                    'targetAverageUtilization': cpu
+                }
+            }
+        memory_metric = {
+            'type': 'Resource',
+            'Resource': {
+                'name': 'cpu',
+                'targetAverageUtilization': memory
+            }
+        }
+        for m in customer:
+            customer_metric = {
+                'type': m['customizeType'],
+                m['customizeType']: {
+                    'metricName': m['metricName'],
+                    'targetAverageValue': m['metricValue']
+                }
+            }
+            metrics.append(customer_metric)
         body = {
             'apiVersion': 'autoscaling/v2beta2',
             'kind': 'HorizontalPodAutoscaler',

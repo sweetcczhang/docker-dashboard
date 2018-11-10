@@ -94,9 +94,9 @@ class Services(basic.Client):
         s_spec = client.V1ServiceSpec()
         s_spec.type = port_type
         selector = {}
-
         selectors = json.loads(selectors)
-        selector[selectors['key']] = selectors['value']
+        for s in selectors:
+            selector[s['key']] = s['value']
         print selector
         s_spec.selector = selector
         ports = []

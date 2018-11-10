@@ -12,6 +12,7 @@ from kubernetes.client.rest import ApiException
 from datetime import datetime
 import pytz
 from kubernetes import client
+import json
 
 
 class Deployments(basic.Client):
@@ -143,7 +144,8 @@ class Deployments(basic.Client):
         return result
 
     def create_deployment_yaml(self, name, image, namespace='default', labels=None, container_name=None, ports=None,
-                               template_labels=None, replicas=1, resources=None, commands=None, args=None, env=None):
+                               template_labels=None, replicas=1, memory=None, cpu=None, commands=None, args=None,
+                               env=None):
         """
         构造一个deployment的yaml文件进行部署
         :param name: deployment的名称
@@ -154,7 +156,8 @@ class Deployments(basic.Client):
         :param ports: 容器的端口
         :param template_labels: replicas的选择标签
         :param replicas: 要部署的容器的数量
-        :param resources:
+        :param memory:
+        :param cpu
         :param commands:
         :param args:
         :param env:
@@ -166,22 +169,27 @@ class Deployments(basic.Client):
         """
         deployment.api_version = "extensions/v1beta1"
         deployment.kind = "Deployment"
-        deployment.metadata = client.V1ObjectMeta(name=name, labels=labels, namespace=namespace)
+        label = {}
+        labels = json.loads(labels)
+        for l in labels:
+            label[l['key']] = l['value']
+        deployment.metadata = client.V1ObjectMeta(name=name, labels=label, namespace=namespace)
         port = []
         for p in ports:
-            port.append(client.V1ContainerPort(name=p['name'], container_port=p['port'], protocol=p['protocol']))
+            port.append(client.V1ContainerPort(container_port=p['containerPort'], protocol=p['protocol']))
         """
         构造容器(container)模版
         """
         container = client.V1Container(name=container_name, image=image, ports=port)
-        client.V1EnvFromSource()
-        client.V1EnvVar()
-        client.V1EnvVarSource()
-        client.V1ConfigMapKeySelector()
+        resources = None
+        if cpu is not None and memory is not None:
+            resources = {'limits': {'cpu': cpu, 'memory': memory},
+                         'request': {'cpu': cpu, 'memory': memory}}
         if resources is not None:
             container.resources = resources
 
         if commands is not None:
+            commands = commands.split()
             container.command = commands
 
         if args is not None:
@@ -189,6 +197,7 @@ class Deployments(basic.Client):
 
         if env is not None:
             envs = []
+            env = json.loads(env)
             for e in env:
                 env_var = client.V1EnvVar(name=e['name'], value=e['value'])
                 envs.append(env_var)
@@ -198,7 +207,11 @@ class Deployments(basic.Client):
         """
         构造replicas的模版
         """
-        template = client.V1PodTemplateSpec(metadata=client.V1ObjectMeta(labels=template_labels),
+        template_label = {}
+        template_labels = json.loads(template_labels)
+        for t in template_labels:
+            template_label[t['key']] = t['value']
+        template = client.V1PodTemplateSpec(metadata=client.V1ObjectMeta(labels=template_label),
                                             spec=client.V1PodSpec(container=[container]))
         """
         构造deployment的规范

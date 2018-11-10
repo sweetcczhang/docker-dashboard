@@ -28,6 +28,7 @@ def create_service():
     v_port = v_port.encode('utf-8')
     selector = request.values.get(key='selector', default=None)
     selector = selector.encode('utf-8')
+    selector = [selector]
     print labels
     print v_port
     print selector

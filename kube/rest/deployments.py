@@ -5,11 +5,9 @@
 # @Author : 张城城
 """
 from flask import Blueprint, jsonify, request
-from kubernetes import client
-from kubernetes.client.rest import ApiException
-from pprint import pprint
 from kube import deploys
-from kube.rest import configKube as conf
+from kube import service_client
+from kube import scale_client
 
 deploy = Blueprint('deployments', __name__)
 
@@ -105,26 +103,30 @@ def create_deployment():
     """
     name = request.values.get(key='name')   # deployment的名称
     namespace = request.values.get(key='namespace', default='default')    # 命名空间
-    replicas = request.values.get(key='replicas', default=1)  # 副本的数量
+    replicas = int(request.values.get(key='replicas', default=1))  # 副本的数量
     image = request.values.get(key='image', default=None)   # 镜像名称
     host_name = request.values.get(key='hostName', default=None)
     cpu = request.values.get(key='cpu', default=None)
     memory = request.values.get(key='memory')
     log = request.values.get(key='log')
     labels = request.values.get(key='labels', default=None)  # deployment标签
+    labels = labels.encode('utf-8')
     is_start = request.values.get(key='isStart')
 
     """
     second part
     """
     container_port = request.values.get("containerPort")  # 容器的端口
+    container_port = container_port.encode('utf-8')
     volumn = request.values.get(key='volumn', default=None)
+    volumn = volumn.encode('utf-8')
 
     """
     third part
     """
     commands = request.values.get(key='commands', default=None)
     env = request.values.get(key='env', default=None)
+    env = env.encode('uft-8')
     args = request.values.get(key='args', default=None)
 
     """
@@ -139,33 +141,33 @@ def create_deployment():
     """
     is_auto = request.values.get(key='isAuto', default='true')
 
+    min_replicas = int(request.values.get(key='min', default=1))
+    max_replicas = int(request.values.get(key='max', default=10))
+
     auto_cpu = request.values.get(key='autoCpu', default=100)
 
     auto_memory = request.values.get(key='autoMemory', default=100)
 
     customer = request.values.get(key='customer', default=None)
 
-
-
-
-
-
-
-    service_port = request.values.get(key='servicePort', default=None)
-
-    auto_scale = request.values.get(key='autoSacle', default=None)
-
     if image is None:
         return_model['retCode'] = 500
         return_model['retDesc'] = '参数错误，镜像不能为空'
         return jsonify(return_model)
-    # deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
-    #                                             container_name=container_name, ports=ports,
-    #                                             template_labels=template_labels,
-    #                                             replicas=replicas, resources=resources, commands=commands, args=args,
-    #                                             env=env)
+    deployment = deploys.create_deployment_yaml(name=name, image=image, namespace=namespace, labels=labels,
+                                                container_name=name, ports=container_port,
+                                                template_labels=labels,
+                                                replicas=replicas, cpu=cpu, memory=memory, commands=commands, args=args,
+                                                env=env)
     try:
-        result = True # deploys.create_deployment(deployment=deployment, namespace=namespace)
+        result = deploys.create_deployment(deployment=deployment, namespace=namespace)
+        if is_service == 'true':
+            service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
+                                          s_port=service_port, selectors=labels)
+        if is_auto == 'true':
+            scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=name,
+                                           min_replicas=min_replicas, max_replicas=max_replicas, cpu=auto_cpu,
+                                           memory=auto_memory, customer=customer)
         if result:
             return_model['retCode'] = 200
             return_model['retDesc'] = 'success'
