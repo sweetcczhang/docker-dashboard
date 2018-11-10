@@ -149,6 +149,8 @@ def create_deployment():
     auto_memory = request.values.get(key='autoMemory', default=100)
 
     customer = request.values.get(key='customer', default=None)
+    if customer == '':
+        customer = None
 
     if image is None:
         return_model['retCode'] = 500

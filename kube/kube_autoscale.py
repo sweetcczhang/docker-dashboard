@@ -29,22 +29,26 @@ class AutoScale(basic.Client):
                     'targetAverageUtilization': cpu
                 }
             }
-        memory_metric = {
-            'type': 'Resource',
-            'Resource': {
-                'name': 'cpu',
-                'targetAverageUtilization': memory
-            }
-        }
-        for m in customer:
-            customer_metric = {
-                'type': m['customizeType'],
-                m['customizeType']: {
-                    'metricName': m['metricName'],
-                    'targetAverageValue': m['metricValue']
+            metrics.append(cpu_metric)
+        if memory != 0:
+            memory_metric = {
+                'type': 'Resource',
+                'Resource': {
+                    'name': 'cpu',
+                    'targetAverageUtilization': memory
                 }
             }
-            metrics.append(customer_metric)
+            metrics.append(memory_metric)
+        if customer is not None:
+            for m in customer:
+                customer_metric = {
+                    'type': m['customizeType'],
+                    m['customizeType']: {
+                        'metricName': m['metricName'],
+                        'targetAverageValue': m['metricValue']
+                    }
+                }
+                metrics.append(customer_metric)
         body = {
             'apiVersion': 'autoscaling/v2beta2',
             'kind': 'HorizontalPodAutoscaler',
