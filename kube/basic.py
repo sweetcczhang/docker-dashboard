@@ -42,7 +42,7 @@ class Client(object):
             label = label.encode('utf-8')
             label = label[:len(label) - 1]
         namespace = pod.metadata.namespace
-        image = pod.spec.containers[0].name
+        image = pod.spec.containers[0].image
         node_name = pod.spec.node_name
         status = pod.status.phase
         create_time = pod.metadata.creation_timestamp

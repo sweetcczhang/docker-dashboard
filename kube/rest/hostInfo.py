@@ -92,6 +92,11 @@ def get_all_cluster_info():
     service_list = service_client.get_service_info()
     node_list = hostInfo.get_host_info()
     repositories = harbor_client.repositories.list(1)
+    not_ready = 0
+    for pod in pod_list[1]:
+        if pod['status'] == 'Pending':
+            not_ready += 1
+
     data = {
         'hosts': {
             'totalNum': node_list[0],
@@ -100,8 +105,8 @@ def get_all_cluster_info():
         },
         'pods': {
             'totalNum': pod_list[0],
-            'readyNum': pod_list[0],
-            'notReadyNum': 0
+            'readyNum': pod_list[0]-not_ready,
+            'notReadyNum': not_ready,
         },
         'deployNum': deploy_list[0],
         'serviceNum': service_list[0],
