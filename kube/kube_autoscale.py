@@ -143,10 +143,10 @@ class AutoScale(basic.Client):
             temp = {'name': name, 'days': days, 'createTime': create_time, 'minReplicas': min_replicas,
                     'maxReplicas': max_replicas, 'target': target, 'CurrentReplicas': current_replicas,
                     'namespace': space}
-            return temp
+            return [temp]
         except ApiException as e:
             print e
-            return None
+            return []
 
     def get_auto_scale_from_field_selector(self, field_selector, namespace='default'):
         try:

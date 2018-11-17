@@ -50,7 +50,7 @@ def get_deployment_detail():
             label.append(temp)
         pod_list = pods_client.get_pod_from_label_or_field(label_selector=label[0], namespace=namespace)
         serivce_detail = service_client.get_service_from_label_selector(label_selector=label[0], namespace=namespace)
-        auto_scale = scale_client.get_auto_scaling_detail(name=name, namespace=namespace)
+        auto_scale = scale_client.get_auto_scaling_detail(name='nodedemo', namespace=namespace)
         data = {
             'deployment': deployment,
             'podList': pod_list,

@@ -167,8 +167,12 @@ class Services(basic.Client):
         :return:
         """
         service_list = {}
+
         try:
-            api_response = self.v1_client.list_namespaced_service(namespace=namespace, label_selector=label_selector)
+            api_response = self.v1_client.list_namespaced_service(namespace=namespace,
+                                                                  label_selector=label_selector).items
+            print "zccc"
+            print api_response
             service_list = self.service_list(api_response)
 
         except ApiException as e:
@@ -187,7 +191,8 @@ class Services(basic.Client):
 
 if __name__ == '__main__':
     v1 = Services()
-    v1.get_service_info()
+    v1.get_service_from_label_selector(namespace='default', label_selector='run=load-balancer-example')
+    # v1.get_service_info()
     # v1.get_service_detail(name='example-service')
     # basepath = os.path.dirname(__file__)
     # print basepath
