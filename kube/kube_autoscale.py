@@ -75,7 +75,7 @@ class AutoScale(basic.Client):
             },
             'spec': {
                 'scaleTargetRef': {
-                    'apiVersion': 'v1',
+                    'apiVersion': 'extensions/v1beta1',
                     'kind': 'Deployment',
                     'name': str(deploy_name)
                 },
@@ -111,8 +111,13 @@ class AutoScale(basic.Client):
                 api_response = self.auto_client.list_horizontal_pod_autoscaler_for_all_namespaces().items
             else:
                 api_response = self.auto_client.list_namespaced_horizontal_pod_autoscaler(namespace=namespace).items
+            print 'testsdf'
             print api_response
             for api in api_response:
+                annotations = api.metadata.annotations
+                if annotations.has_key('autoscaling.alpha.kubernetes.io/current-metrics'):
+                    print api.metadata.name
+                    print annotations['autoscaling.alpha.kubernetes.io/current-metrics']
                 create_time = api.metadata.creation_timestamp
                 now_time = datetime.utcnow().replace(tzinfo=pytz.timezone("UTC"))
                 days = (now_time - create_time).days
@@ -190,5 +195,5 @@ class AutoScale(basic.Client):
 if __name__ == '__main__':
     auto = AutoScale()
     auto.list_auto_scaling()
-    auto.get_auto_scale_from_field_selector(field_selector='spec.scaleTargetRef.name=jenkinstest-deployment',
-                                            namespace='default')
+    # auto.get_auto_scale_from_field_selector(field_selector='spec.scaleTargetRef.name=jenkinstest-deployment',
+    #                                         namespace='default')
