@@ -19,7 +19,7 @@ class AutoScale(basic.Client):
 
     def create_auto_scale(self, namespace, name, labels, deploy_name, min_replicas, max_replicas,
                           cpu, memory, customer):
-
+        print 'start'
         metrics = []
         if cpu != 0:
             cpu_metric = {
@@ -39,6 +39,8 @@ class AutoScale(basic.Client):
                 }
             }
             metrics.append(memory_metric)
+        print 'customer:'
+        print customer
         if customer is not None:
             for m in customer:
                 customer_metric = {
@@ -69,7 +71,8 @@ class AutoScale(basic.Client):
         }
         print body
         try:
-            result = self.auto_client.create_namespaced_horizontal_pod_autoscaler(namespace=namespace, body=body)
+            # result = self.auto_client.create_namespaced_horizontal_pod_autoscaler(namespace=namespace, body=body)
+            result = False
             return result
         except ApiException as e:
             print("Exception when calling AutoscalingV1Api->create_namespaced_horizontal_pod_autoscaler: %s\n" % e)

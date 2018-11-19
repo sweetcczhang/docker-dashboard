@@ -43,14 +43,19 @@ def get_deployment_detail():
         return jsonify(return_model)
     try:
         deployment = deploys.get_deployment_detail(name=name, namespace=namespace)
+
         label_select = deployment['selectors']
         label = []
         for key, value in label_select.items():
             temp = key + '=' + value
             label.append(temp)
+
         pod_list = pods_client.get_pod_from_label_or_field(label_selector=label[0], namespace=namespace)
+
         serivce_detail = service_client.get_service_from_label_selector(label_selector=label[0], namespace=namespace)
-        auto_scale = scale_client.get_auto_scaling_detail(name='nodedemo', namespace=namespace)
+
+        auto_scale = scale_client.get_auto_scaling_detail(name=name, namespace=namespace)
+
         data = {
             'deployment': deployment,
             'podList': pod_list,
@@ -127,7 +132,10 @@ def create_deployment():
     image = request.values.get(key='image', default=None)   # 镜像名称
     print 'image:' + image
     host_name = request.values.get(key='hostName', default=None)
-    print 'hostName:' + host_name
+    if host_name == '':
+        host_name = None
+    print 'hostName:'
+    print host_name
     cpu = request.values.get(key='cpu', default=None)
     print "cpu:" + cpu
     memory = request.values.get(key='memory')
@@ -160,7 +168,7 @@ def create_deployment():
     print 'commands:'
     print commands
     env = request.values.get(key='env', default=None)
-    env = env.encode('uft-8')
+    env = env.encode('utf-8')
     print 'env:'
     print env
     args = request.values.get(key='args', default=None)
@@ -173,12 +181,13 @@ def create_deployment():
     is_service = request.values.get(key='isService', default='true')
     print 'is_service:'
     print is_service
-    port_type = request.values.get(key='portType', default='NodePort')
-    print 'port_type:'
-    print port_type
-    service_port = request.values.get(key='servicePort')
-    print 'service_port:'
-    print service_port
+    if is_service == 'true':
+        port_type = request.values.get(key='portType', default='NodePort')
+        print 'port_type:'
+        print port_type
+        service_port = request.values.get(key='servicePort')
+        print 'service_port:'
+        print service_port
 
     """
     fifth part
@@ -187,27 +196,33 @@ def create_deployment():
     print 'is_auto:'
     print is_auto
 
-    min_replicas = int(request.values.get(key='min', default=1))
-    print 'min_replicas:'
-    print min_replicas
+    if is_auto == 'true':
 
-    max_replicas = int(request.values.get(key='max', default=10))
-    print 'max_replicas'
-    print max_replicas
+        min_replicas = int(request.values.get(key='min', default=1))
+        print 'min_replicas:'
+        print min_replicas
 
-    auto_cpu = request.values.get(key='autoCpu', default=100)
-    print 'auto_cpu'
-    print auto_cpu
+        max_replicas = int(request.values.get(key='max', default=10))
+        print 'max_replicas'
+        print max_replicas
 
-    auto_memory = request.values.get(key='autoMemory', default=100)
-    print 'auto_memory'
-    print auto_memory
+        auto_cpu = request.values.get(key='autoCpu', default=100)
+        print 'auto_cpu'
+        print auto_cpu
 
-    customer = request.values.get(key='customer', default=None)
-    print 'customer'
-    print customer
-    if customer == '':
-        customer = None
+        auto_memory = request.values.get(key='autoMemory', default=100)
+        print 'auto_memory'
+        print auto_memory
+
+        customer = request.values.get(key='customer', default=None)
+
+        if customer == '':
+            customer = None
+        elif customer == '[]':
+            customer = None
+
+        print 'customer:'
+        print customer
 
     if image is None:
         return_model['retCode'] = 500
@@ -218,24 +233,25 @@ def create_deployment():
                                                 template_labels=labels,
                                                 replicas=replicas, cpu=cpu, memory=memory, commands=commands, args=args,
                                                 env=env)
-    # try:
-    #     result = deploys.create_deployment(deployment=deployment, namespace=namespace)
-    #     if is_service == 'true':
-    #         service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
-    #                                       s_port=service_port, selectors=labels)
-    #     if is_auto == 'true':
-    #         scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=name,
-    #                                        min_replicas=min_replicas, max_replicas=max_replicas, cpu=auto_cpu,
-    #                                        memory=auto_memory, customer=customer)
-    #     if result:
-    #         return_model['retCode'] = 200
-    #         return_model['retDesc'] = 'success'
-    #     else:
-    #         raise Exception('创建deployment失败')
-    # except Exception as e:
-    #     return_model['retCode'] = 500
-    #     return_model['retDesc'] = '请检查参数'
-    #     print e
+    try:
+        result = deploys.create_deployment(deployment=deployment, namespace=namespace)
+        # result = False
+        if is_service == 'true':
+            service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
+                                          s_port=service_port, selectors=labels)
+        if is_auto == 'true':
+            scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=name,
+                                           min_replicas=min_replicas, max_replicas=max_replicas, cpu=auto_cpu,
+                                           memory=auto_memory, customer=customer)
+        if result:
+            return_model['retCode'] = 200
+            return_model['retDesc'] = 'success'
+        else:
+            raise Exception('创建deployment失败')
+    except Exception as e:
+        return_model['retCode'] = 500
+        return_model['retDesc'] = '请检查参数'
+        print e
 
     return jsonify(return_model)
 

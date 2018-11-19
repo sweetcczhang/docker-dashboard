@@ -84,12 +84,12 @@ class Deployments(basic.Client):
             for key, value in selectors.items():
                 selector = selector + key.encode('utf-8') + ':' + value + ','
             selector = selector[:len(selector)-1]
-            replica_set = api_response.status.conditions[1].message.split(" ")[1]
-            replica_name = replica_set[1:len(replica_set)-1]
+            # replica_set = api_response.status.conditions[1].message.split(" ")[1]
+            # replica_name = replica_set[1:len(replica_set)-1]
             replicas = api_response.spec.replicas
             replicas_available = api_response.status.available_replicas
             deploy = {'name': name, 'namespace': namespace, 'label': label, 'days': days,
-                      'createTime': create_time, 'selector': selector, 'replicaName': replica_name,
+                      'createTime': create_time, 'selector': selector,
                       'replicasNum': replicas, 'replicasAvailable': replicas_available, 'selectors': selectors}
             print deploy
         except ApiException as e:
@@ -108,7 +108,7 @@ class Deployments(basic.Client):
         try:
             #创建一个deployment
             api_response = self.ext_client.create_namespaced_deployment(namespace=namespace, body=deployment)
-            self.ext_client.patch_namespaced_deployment_scale()
+            # self.ext_client.patch_namespaced_deployment_scale()
             print ("Deployment created. status='%s'" % str(api_response.status))
             result = True
         except ApiException as e:
@@ -169,22 +169,24 @@ class Deployments(basic.Client):
         """
         deployment.api_version = "extensions/v1beta1"
         deployment.kind = "Deployment"
+
         label = {}
         labels = json.loads(labels)
         for l in labels:
             label[l['key']] = l['value']
         deployment.metadata = client.V1ObjectMeta(name=name, labels=label, namespace=namespace)
         port = []
+        ports = json.loads(ports)
         for p in ports:
-            port.append(client.V1ContainerPort(container_port=p['containerPort'], protocol=p['protocol']))
+            port.append(client.V1ContainerPort(container_port=int(p['containerPort']), protocol=str(p['protocol'])))
         """
         构造容器(container)模版
         """
         container = client.V1Container(name=container_name, image=image, ports=port)
         resources = None
         if cpu is not None and memory is not None:
-            resources = {'limits': {'cpu': cpu, 'memory': memory},
-                         'request': {'cpu': cpu, 'memory': memory}}
+            resources = {'limits': {'cpu': str(cpu)+'m', 'memory': str(memory)+'Mi'},
+                         'request': {'cpu': str(cpu)+'m', 'memory': str(memory)+'Mi'}}
         if resources is not None:
             container.resources = resources
 
@@ -199,7 +201,7 @@ class Deployments(basic.Client):
             envs = []
             env = json.loads(env)
             for e in env:
-                env_var = client.V1EnvVar(name=e['name'], value=e['value'])
+                env_var = client.V1EnvVar(name=e['key'], value=e['value'])
                 envs.append(env_var)
             container.env = envs
 
@@ -212,13 +214,13 @@ class Deployments(basic.Client):
         for t in template_labels:
             template_label[t['key']] = t['value']
         template = client.V1PodTemplateSpec(metadata=client.V1ObjectMeta(labels=template_label),
-                                            spec=client.V1PodSpec(container=[container]))
+                                            spec=client.V1PodSpec(containers=[container]))
         """
         构造deployment的规范
         """
         spec = client.ExtensionsV1beta1DeploymentSpec(replicas=replicas, template=template, )
         deployment.spec = spec
-
+        print deployment
         return deployment
 
 

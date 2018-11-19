@@ -52,9 +52,9 @@ class PodLogs(kube_logs.KubeLogs):
         """
         cpu的使用量
         """
-        print 'pod cpu'
+        # print 'pod cpu'
         (used, time) = self.pod_query("cpu/usage_rate", namespace, pod_name)
-        print used
+        # print used
         res["cpu"]["usage_rate"].setdefault("sum", used)
         res["cpu"]["usage_rate"].setdefault("time", time)
         """
@@ -74,20 +74,22 @@ class PodLogs(kube_logs.KubeLogs):
         memory的使用情况
         """
         (used, time) = self.pod_query("memory/usage", namespace, pod_name)
-        used = used[1:]
         use = []
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c / (1024.0 * 1024.0)
             use.append(c)
         i = len(use)
         a = use[i - 2]
         use[i - 1] = a
-        print "pod memory:"
-        print use
+
         res["memory"]["usage"].setdefault("sum", use)
-        res["memory"]["usage"].setdefault("time", time[1:])
+        res["memory"]["usage"].setdefault("time", time)
 
         # (used, time) = self.pod_query("memory/limit", namespace, pod_name)
         # res["memory"]["limit"].setdefault("sum", used)
@@ -116,15 +118,19 @@ class PodLogs(kube_logs.KubeLogs):
         文件系统的使用情况
         """
         (used, time) = self.pod_query("filesystem/usage", namespace, pod_name)
-        used = used[1:]
+
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         use = []
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c / (1024.0 * 1024.0 * 2.0)
             use.append(c)
         res["filesystem"]["usage"].setdefault("sum", use)
-        res["filesystem"]["usage"].setdefault("time", time[1:])
+        res["filesystem"]["usage"].setdefault("time", time)
 
         (used, time) = self.pod_query("filesystem/limit", namespace, pod_name)
         res["filesystem"]["limit"].setdefault("sum", used)
