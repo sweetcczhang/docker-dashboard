@@ -14,6 +14,8 @@ import kubernetes
 from datetime import datetime
 import pytz
 import json
+import os
+
 
 class AutoScale(basic.Client):
 
@@ -24,18 +26,25 @@ class AutoScale(basic.Client):
         if cpu != 0:
             cpu_metric = {
                 'type': 'Resource',
-                'Resource': {
+                'resource': {
                     'name': 'cpu',
-                    'targetAverageUtilization': cpu
+                    'target': {
+                        'type': 'Utilization',
+                        'averageUtilization': cpu
+                    }
+
                 }
             }
             metrics.append(cpu_metric)
         if memory != 0:
             memory_metric = {
                 'type': 'Resource',
-                'Resource': {
-                    'name': 'cpu',
-                    'targetAverageUtilization': memory
+                'resource': {
+                    'name': 'memory',
+                    'target': {
+                        'type': 'Utilization',
+                        'averageUtilization': cpu
+                    }
                 }
             }
             metrics.append(memory_metric)
@@ -52,18 +61,23 @@ class AutoScale(basic.Client):
                     }
                 }
                 metrics.append(customer_metric)
+        label = {}
+        labels = json.loads(labels)
+        for l in labels:
+            label[str(l['key'])] = str(l['value'])
         body = {
             'apiVersion': 'autoscaling/v2beta2',
             'kind': 'HorizontalPodAutoscaler',
             'metadata': {
-                'name': name,
-                'labels': labels
+                'name': str(name),
+                'labels': label,
+                'namespace': namespace
             },
             'spec': {
                 'scaleTargetRef': {
                     'apiVersion': 'v1',
                     'kind': 'Deployment',
-                    'name': deploy_name
+                    'name': str(deploy_name)
                 },
                 'minReplicas': min_replicas,
                 'maxReplicas': max_replicas,
@@ -71,9 +85,20 @@ class AutoScale(basic.Client):
             }
         }
         print body
+        print 'hello zcc'
+        auto_json = json.dumps(body)
+        print auto_json
+        with open(name+'.json', 'w') as f:
+            f.write(auto_json)
+            f.close()
+
         try:
             # result = self.auto_client.create_namespaced_horizontal_pod_autoscaler(namespace=namespace, body=body)
-            result = False
+            commands = 'kubectl create -f ' + name + '.json'
+            print commands
+            output = os.popen(commands)
+            result = output.read()
+            print result
             return result
         except ApiException as e:
             print("Exception when calling AutoscalingV1Api->create_namespaced_horizontal_pod_autoscaler: %s\n" % e)

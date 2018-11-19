@@ -234,8 +234,8 @@ def create_deployment():
                                                 replicas=replicas, cpu=cpu, memory=memory, commands=commands, args=args,
                                                 env=env)
     try:
-        result = deploys.create_deployment(deployment=deployment, namespace=namespace)
-        # result = False
+        # result = deploys.create_deployment(deployment=deployment, namespace=namespace)
+        result = False
         if is_service == 'true':
             service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
                                           s_port=service_port, selectors=labels)

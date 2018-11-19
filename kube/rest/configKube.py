@@ -46,5 +46,5 @@ def get_role_client():
 
 def get_auto_scaling():
     config_kube()
-    auto_scaling = client.AutoscalingV1Api()
+    auto_scaling = client.AutoscalingV2beta1Api()
     return auto_scaling
