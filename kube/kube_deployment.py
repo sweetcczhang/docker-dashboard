@@ -173,7 +173,7 @@ class Deployments(basic.Client):
         label = {}
         labels = json.loads(labels)
         for l in labels:
-            label[l['key']] = l['value']
+            label[str(l['key'])] = str(l['value'])
         deployment.metadata = client.V1ObjectMeta(name=name, labels=label, namespace=namespace)
         port = []
         ports = json.loads(ports)

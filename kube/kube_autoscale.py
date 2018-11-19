@@ -13,7 +13,7 @@ from kubernetes.client.rest import ApiException
 import kubernetes
 from datetime import datetime
 import pytz
-
+import json
 
 class AutoScale(basic.Client):
 
@@ -42,6 +42,7 @@ class AutoScale(basic.Client):
         print 'customer:'
         print customer
         if customer is not None:
+            customer = json.loads(customer)
             for m in customer:
                 customer_metric = {
                     'type': m['customizeType'],

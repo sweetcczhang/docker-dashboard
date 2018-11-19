@@ -206,11 +206,11 @@ def create_deployment():
         print 'max_replicas'
         print max_replicas
 
-        auto_cpu = request.values.get(key='autoCpu', default=100)
+        auto_cpu = int(request.values.get(key='autoCpu', default=100))
         print 'auto_cpu'
         print auto_cpu
 
-        auto_memory = request.values.get(key='autoMemory', default=100)
+        auto_memory = int(request.values.get(key='autoMemory', default=100))
         print 'auto_memory'
         print auto_memory
 
