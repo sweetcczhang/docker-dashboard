@@ -21,6 +21,8 @@ def get_node_logs():
     return_model['retDesc'] = 'success'
     return_model['data'] = data
 
+    # print host_ip
+    # print return_model
     return jsonify(return_model)
 
 
@@ -37,4 +39,5 @@ def get_pod_logs():
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         return_model['data'] = data
+
     return jsonify(return_model)

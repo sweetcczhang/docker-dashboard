@@ -117,53 +117,95 @@ def create_deployment():
     first part
     """
     name = request.values.get(key='name')   # deployment的名称
+    print 'name:' + name
+
     namespace = request.values.get(key='namespace', default='default')    # 命名空间
+    print 'namespace:' + namespace
     replicas = int(request.values.get(key='replicas', default=1))  # 副本的数量
+    print 'replicas: %d', replicas
+
     image = request.values.get(key='image', default=None)   # 镜像名称
+    print 'image:' + image
     host_name = request.values.get(key='hostName', default=None)
+    print 'hostName:' + host_name
     cpu = request.values.get(key='cpu', default=None)
+    print "cpu:" + cpu
     memory = request.values.get(key='memory')
+    print "memory:" + memory
     log = request.values.get(key='log')
+    print 'log:' + log
     labels = request.values.get(key='labels', default=None)  # deployment标签
+    print 'labels:'
+    print labels
     labels = labels.encode('utf-8')
     is_start = request.values.get(key='isStart')
+    print 'is_start:' + is_start
 
     """
     second part
     """
     container_port = request.values.get("containerPort")  # 容器的端口
     container_port = container_port.encode('utf-8')
+    print 'container_port:'
+    print container_port
     volumn = request.values.get(key='volumn', default=None)
     volumn = volumn.encode('utf-8')
+    print 'volumn:'
+    print volumn
 
     """
     third part
     """
     commands = request.values.get(key='commands', default=None)
+    print 'commands:'
+    print commands
     env = request.values.get(key='env', default=None)
     env = env.encode('uft-8')
+    print 'env:'
+    print env
     args = request.values.get(key='args', default=None)
+    print 'args:'
+    print args
 
     """
     fourth part
     """
     is_service = request.values.get(key='isService', default='true')
+    print 'is_service:'
+    print is_service
     port_type = request.values.get(key='portType', default='NodePort')
+    print 'port_type:'
+    print port_type
     service_port = request.values.get(key='servicePort')
+    print 'service_port:'
+    print service_port
 
     """
     fifth part
     """
     is_auto = request.values.get(key='isAuto', default='true')
+    print 'is_auto:'
+    print is_auto
 
     min_replicas = int(request.values.get(key='min', default=1))
+    print 'min_replicas:'
+    print min_replicas
+
     max_replicas = int(request.values.get(key='max', default=10))
+    print 'max_replicas'
+    print max_replicas
 
     auto_cpu = request.values.get(key='autoCpu', default=100)
+    print 'auto_cpu'
+    print auto_cpu
 
     auto_memory = request.values.get(key='autoMemory', default=100)
+    print 'auto_memory'
+    print auto_memory
 
     customer = request.values.get(key='customer', default=None)
+    print 'customer'
+    print customer
     if customer == '':
         customer = None
 
@@ -176,24 +218,25 @@ def create_deployment():
                                                 template_labels=labels,
                                                 replicas=replicas, cpu=cpu, memory=memory, commands=commands, args=args,
                                                 env=env)
-    try:
-        result = deploys.create_deployment(deployment=deployment, namespace=namespace)
-        if is_service == 'true':
-            service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
-                                          s_port=service_port, selectors=labels)
-        if is_auto == 'true':
-            scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=name,
-                                           min_replicas=min_replicas, max_replicas=max_replicas, cpu=auto_cpu,
-                                           memory=auto_memory, customer=customer)
-        if result:
-            return_model['retCode'] = 200
-            return_model['retDesc'] = 'success'
-        else:
-            raise Exception('创建deployment失败')
-    except Exception as e:
-        return_model['retCode'] = 500
-        return_model['retDesc'] = '请检查参数'
-        print e
+    # try:
+    #     result = deploys.create_deployment(deployment=deployment, namespace=namespace)
+    #     if is_service == 'true':
+    #         service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
+    #                                       s_port=service_port, selectors=labels)
+    #     if is_auto == 'true':
+    #         scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=name,
+    #                                        min_replicas=min_replicas, max_replicas=max_replicas, cpu=auto_cpu,
+    #                                        memory=auto_memory, customer=customer)
+    #     if result:
+    #         return_model['retCode'] = 200
+    #         return_model['retDesc'] = 'success'
+    #     else:
+    #         raise Exception('创建deployment失败')
+    # except Exception as e:
+    #     return_model['retCode'] = 500
+    #     return_model['retDesc'] = '请检查参数'
+    #     print e
+
     return jsonify(return_model)
 
     # deployment = client.ExtensionsV1beta1Deployment()

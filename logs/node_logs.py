@@ -70,7 +70,7 @@ class NodeLogs(kube_logs.KubeLogs):
         for c in used:
             if c is None:
                 c = use[-1]
-            c = c/(1000.0 * 2.0)
+            c = c/1000.0
             use.append(c)
         i = len(use)
         # print i
@@ -91,7 +91,7 @@ class NodeLogs(kube_logs.KubeLogs):
         for c in used:
             if c is None:
                 c = use[-1]
-            c/(1000.0 * 2.0)
+            c/1000.0
             use.append(c)
 
         res["cpu"]["request"].setdefault("sum", use)
@@ -106,8 +106,11 @@ class NodeLogs(kube_logs.KubeLogs):
         for c in used:
             if c is None:
                 c = use[-1]
-            c = c / (1024.0 * 1024.0 * 2.0)
+            c = c / (1024.0 * 1024.0)
             use.append(c)
+        i = len(use)
+        a = use[i - 2]
+        use[i - 1] = a
         res["memory"]["usage"].setdefault("sum", use)
         res["memory"]["usage"].setdefault("time", time[1:])
 
@@ -121,7 +124,7 @@ class NodeLogs(kube_logs.KubeLogs):
         for c in used:
             if c is None:
                 c = use[-1]
-            c = c / (1024.0 * 1024.0 * 2.0)
+            c = c / (1024.0 * 1024.0)
             use.append(c)
         res["memory"]["request"].setdefault("sum", use)
         res["memory"]["request"].setdefault("time", time[1:])
@@ -132,7 +135,7 @@ class NodeLogs(kube_logs.KubeLogs):
         for c in used:
             if c is None:
                 c = use[-1]
-            c = c / (1024.0 * 1024.0 * 2.0)
+            c = c / (1024.0 * 1024.0)
             use.append(c)
         res["memory"]["working_set"].setdefault("sum", use)
         res["memory"]["working_set"].setdefault("time", time)

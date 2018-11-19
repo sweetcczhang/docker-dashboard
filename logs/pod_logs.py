@@ -52,7 +52,9 @@ class PodLogs(kube_logs.KubeLogs):
         """
         cpu的使用量
         """
+        print 'pod cpu'
         (used, time) = self.pod_query("cpu/usage_rate", namespace, pod_name)
+        print used
         res["cpu"]["usage_rate"].setdefault("sum", used)
         res["cpu"]["usage_rate"].setdefault("time", time)
         """
@@ -77,8 +79,13 @@ class PodLogs(kube_logs.KubeLogs):
         for c in used:
             if c is None:
                 c = use[-1]
-            c = c / (1024.0 * 1024.0 * 2.0)
+            c = c / (1024.0 * 1024.0)
             use.append(c)
+        i = len(use)
+        a = use[i - 2]
+        use[i - 1] = a
+        print "pod memory:"
+        print use
         res["memory"]["usage"].setdefault("sum", use)
         res["memory"]["usage"].setdefault("time", time[1:])
 
