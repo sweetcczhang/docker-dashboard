@@ -11,6 +11,7 @@
 from jenkins1 import jks
 import jenkins1
 import xml.dom.minidom
+import time
 
 from flask import jsonify, request, Blueprint
 
@@ -54,16 +55,34 @@ def get_version():
 def get_all_job():
     return_model = {}
     try:
-        db = jenkins1.connect_db()
-        cur = db.cursor()
-        sql = "SELECT * FROM jenkins"
-        cur.execute(sql)
-        results = cur.fetchall()
+
+        all_job = jks.get_jobs()
         data = []
-        for r in results:
-            temp = {'jobName': r[1], 'description': r[2], 'gitUrl': r[3], 'branches': r[5], 'timeTrigger': r[6],
-                    'gitlabTrigger': r[7], 'username': r[8], 'password': r[9]}
+        for job in all_job:
+            next_build = jks.get_job_info(name=job['name'])['nextBuildNumber'] - 1
+            if next_build == 0:
+                temp = {'name': job['name'], 'result': 'notBuild', 'buildTime': 'notBuild',
+                        'duration': 'notBuild', 'builds': 'notBuild', 'branches': '/master'}
+            else:
+                build_info = jks.get_build_info(name=job['name'], number=next_build)
+                time_stamp = build_info['timestamp'] / 1000
+                timeArray = time.localtime(time_stamp)
+                otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+                temp = {'name': job['name'], 'result': build_info['result'], 'buildTime': otherStyleTime,
+                        'duration': build_info['duration']/1000, 'builds': build_info['displayName'],
+                        'branches': '/master'}
             data.append(temp)
+
+        # db = jenkins1.connect_db()
+        # cur = db.cursor()
+        # sql = "SELECT * FROM jenkins"
+        # cur.execute(sql)
+        # results = cur.fetchall()
+        # data = {}
+        # for r in results:
+        #     temp = {'jobName': r[1], 'description': r[2], 'gitUrl': r[3], 'branches': r[5], 'timeTrigger': r[6],
+        #             'gitlabTrigger': r[7], 'username': r[8], 'password': r[9]}
+        #     data[r[1]] = temp
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         return_model['data'] = data
@@ -71,8 +90,8 @@ def get_all_job():
         print e
         return_model['retCode'] = 500
         return_model['retDesc'] = '获取任务列表失败'
-    finally:
-        db.close()
+    # finally:
+    #     db.close()
     return jsonify(return_model)
 
 

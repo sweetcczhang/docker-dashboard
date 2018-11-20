@@ -37,8 +37,8 @@ def create_service():
     print selector
 
     try:
-        service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
-                                      s_port=v_port, selectors=selector)
+        # service_client.create_service(name=name, labels=labels, namespace=namespace, port_type=port_type,
+        #                               s_port=v_port, selectors=selector)
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         print return_model

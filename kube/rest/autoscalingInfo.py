@@ -46,6 +46,8 @@ def create_auto_scale():
         deploy_name = request.values.get(key='deployName')
         min_replicas = int(request.values.get(key='minReplicas', default=1))
         max_replicas = int(request.values.get(key='maxReplicas', default=10))
+        cpu = int(request.values.get(key='CPU', default=90))
+        memory = int(request.values.get(key='memory', default=90))
         metrics = request.values.get(key='metric')
 
         result = scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=deploy_name,

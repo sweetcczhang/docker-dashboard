@@ -9,7 +9,7 @@
 """
 import jenkins
 import xml.etree.ElementTree as ET
-
+import time
 
 class JenkinsJob(object):
 
@@ -207,15 +207,38 @@ class JenkinsJob(object):
         """
         try:
             log = self.server.get_build_console_output(name, number)
+
             return log
         except Exception as err:
             print('---ERROR IN GET BUILD LOG---')
             print(format(err))
 
+    def get_build_info(self, name, number):
+        try:
+            info = self.server.get_build_info(name, number)
+            return info
+        except Exception as e:
+            print(format(e))
 
-if __name__ =='__main__':
+    def get_views(self):
+
+        return self.server.get_views()
+
+
+if __name__ == '__main__':
     js = JenkinsJob('http://10.108.210.227:9999', 'admin', 'root!@#456')
-    js.create_job('asdf', jenkins.EMPTY_CONFIG_XML)
+    next_build = js.get_job_info(name='sweet123')['nextBuildNumber'] - 1
+    build_info = js.get_build_info(name='sweet123', number=next_build)
+    print build_info['result']
+    print build_info['duration']/1000
+    print build_info['displayName']
+    print build_info
+    print js.get_jobs()
+
+    time_stamp = 1542697674939/1000
+    timeArray = time.localtime(time_stamp)
+    otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+    print otherStyleTime
 
 '''
 jks=jenkinsJob('http://10.108.210.227:9999','admin','root!@#456')
@@ -224,6 +247,7 @@ count=jks.getJobCount()
 job=jks.getJobConfig('empty')
 print(version)
 '''
+
 '''
 server = jenkins1.Jenkins('http://10.108.210.227:9999', username='admin', password='root!@#456')
 user = server.get_whoami()
