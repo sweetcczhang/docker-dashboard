@@ -8,6 +8,9 @@ from flask import Blueprint, jsonify,request
 from kubernetes.client.rest import ApiException
 from kube.rest import configKube as conf
 from kube import service_client
+from kube import pods_client
+import json
+import os
 
 service_s = Blueprint('services', __name__)
 
@@ -57,6 +60,9 @@ def get_service_details():
     namespace = request.values.get(key='namespace', default='default')
     try:
         service_detail = service_client.get_service_detail(name=name, namespace=namespace)
+        labels = service_detail['selectors']
+        labels = labels.split(',')
+        pods_list = pods_client.get_pod_from_label_or_field(label_selector=labels[0], namespace=namespace)
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         return_model['data'] = service_detail
@@ -173,5 +179,36 @@ def delete_service():
     return jsonify(return_model)
 
 
+@service_s.route('/labelService', methods=['GET', 'POST'])
+def label_service():
+    return_model = {}
+    name = request.values.get(key='name')
+    namespace = request.values.get(key='namespace', default='default')
+    labels = request.values.get(key='labels')
+    labels = labels.encode('utf-8')
+    labels = json.loads(labels)
+    label = []
+    for l in labels:
+        temp = l['key'] + '=' + l['value']
+        label.append(temp)
+    result = ''
+    try:
+        for la in label:
+            commands = 'kubectl label service ' + name + ' -n ' + namespace + la
+            output = os.popen(commands)
+            result = request + output.read()
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = 'service打标签失败'
+
+    return jsonify(return_model)
+
+
 if __name__ == "__main__":
-    get_service_info()
+    # get_service_info()
+    test = 'app=demo'
+    print test.split(",")[0]

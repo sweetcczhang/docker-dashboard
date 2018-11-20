@@ -11,7 +11,6 @@
 from kube import basic
 from kubernetes.client.rest import ApiException
 from kubernetes import client
-import os
 import json
 
 
@@ -137,9 +136,11 @@ class Services(basic.Client):
             namespace = api_response.metadata.namespace
             label = api_response.metadata.labels
             labels = ''
-            for key, value in label.items():
-                labels = labels + key + '=' + value + ','
-            labels = labels.encode('utf-8')
+            if label is not None:
+                for key, value in label.items():
+                    labels = labels + key + '=' + value + ','
+                labels = labels[:len(labels)-1]
+                labels = labels.encode('utf-8')
             cluster_ip = api_response.spec.cluster_ip
             hello = api_response.spec.type
             ports = api_response.spec.ports[0]
@@ -151,9 +152,16 @@ class Services(basic.Client):
             create_time = api_response.metadata.creation_timestamp
             create_time = str(create_time)
             create_time = create_time[:len(create_time)-6]
+            selector = api_response.spec.selector
+            selectors = ''
+            if selector is not None:
+                for key, value in selector.items():
+                    selectors = selectors + key + '=' + value + ','
+                selectors = selectors[:len(selectors)-1]
+                selectors = selectors.encode('utf-8')
 
             service_detail = {"name": name, "namespace": namespace, "labels": labels, "clusterIp": cluster_ip,
-                              "type": hello, "port": port, "createTime": create_time}
+                              "type": hello, "port": port, "createTime": create_time, "selectors": selectors}
             print service_detail
         except ApiException as e:
             print e
@@ -191,8 +199,8 @@ class Services(basic.Client):
 
 if __name__ == '__main__':
     v1 = Services()
-    v1.get_service_from_label_selector(namespace='default', label_selector='run=load-balancer-example')
-    # v1.get_service_info()
+    # v1.get_service_from_label_selector(namespace='default', label_selector='run=load-balancer-example')
+    v1.get_service_info()
     # v1.get_service_detail(name='example-service')
     # basepath = os.path.dirname(__file__)
     # print basepath

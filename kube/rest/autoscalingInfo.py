@@ -9,7 +9,8 @@
 """
 from flask import Blueprint, jsonify, request
 from kube import scale_client
-
+import json
+import os
 
 autoscaling = Blueprint('autoscalingInfo', __name__)
 
@@ -59,4 +60,33 @@ def create_auto_scale():
         print e
         return_model['retCode'] = 500
         return_model['retDesc'] = '创建自动伸缩器失败'
+    return jsonify(return_model)
+
+
+@autoscaling.route('/labelAutoScale', methods=['GET', 'POST'])
+def label_auto_scale():
+    return_model = {}
+    name = request.values.get(key='name')
+    namespace = request.values.get(key='namespace', default='default')
+    labels = request.values.get(key='labels')
+    labels = labels.encode('utf-8')
+    labels = json.loads(labels)
+    label = []
+    for l in labels:
+        temp = l['key'] + '=' + l['value']
+        label.append(temp)
+    result = ''
+    try:
+        for la in label:
+            commands = 'kubectl label hpa ' + name + ' -n ' + namespace + la
+            output = os.popen(commands)
+            result = request + output.read()
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = 'hpa打标签失败'
+
     return jsonify(return_model)

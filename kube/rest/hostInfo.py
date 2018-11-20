@@ -16,6 +16,7 @@ from harbor.rest import harbor as harbor_client
 from werkzeug.utils import secure_filename
 import os
 from yamls_location_config import YAML_LOC
+import json
 hosts = Blueprint('hostInfo', __name__)
 
 
@@ -184,3 +185,32 @@ def get_yaml_from_value():
         return_model['retCode'] = 500
         return_model['retDesc'] = '请检查yaml文件的格式是否正确'
     return return_model
+
+
+@hosts.route('/labelHost', methods=['POST', 'GET'])
+def label_host():
+    return_model = {}
+    name = request.values.get(key='name')
+    namespace = request.values.get(key='namespace', default='default')
+    labels = request.values.get(key='labels')
+    labels = labels.encode('utf-8')
+    labels = json.loads(labels)
+    label = []
+    for l in labels:
+        temp = l['key'] + '=' + l['value']
+        label.append(temp)
+    result = ''
+    try:
+        for la in label:
+            commands = 'kubectl label host ' + name + la
+            output = os.popen(commands)
+            result = request + output.read()
+        return_model['retCode'] = 200
+        return_model['retDesc'] = 'success'
+        return_model['data'] = result
+    except Exception as e:
+        print e
+        return_model['retCode'] = 500
+        return_model['retDesc'] = 'host打标签失败'
+
+    return jsonify(return_model)
