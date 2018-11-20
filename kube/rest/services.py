@@ -63,9 +63,15 @@ def get_service_details():
         labels = service_detail['selectors']
         labels = labels.split(',')
         pods_list = pods_client.get_pod_from_label_or_field(label_selector=labels[0], namespace=namespace)
+        print labels[0]
+        print pods_list
+        data = {
+            'service': service_detail,
+            'podList': pods_list[1]
+        }
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
-        return_model['data'] = service_detail
+        return_model['data'] = data
     except Exception as e:
         print e
         return_model['retCode'] = 500
@@ -183,8 +189,10 @@ def delete_service():
 def label_service():
     return_model = {}
     name = request.values.get(key='name')
+    print name
     namespace = request.values.get(key='namespace', default='default')
     labels = request.values.get(key='labels')
+    print labels
     labels = labels.encode('utf-8')
     labels = json.loads(labels)
     label = []
@@ -194,9 +202,10 @@ def label_service():
     result = ''
     try:
         for la in label:
-            commands = 'kubectl label service ' + name + ' -n ' + namespace + la
+            commands = 'kubectl label service ' + name + ' -n ' + namespace + ' ' + la
+            print commands
             output = os.popen(commands)
-            result = request + output.read()
+            result += output.read()
         return_model['retCode'] = 200
         return_model['retDesc'] = 'success'
         return_model['data'] = result

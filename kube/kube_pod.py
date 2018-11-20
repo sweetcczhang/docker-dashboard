@@ -173,10 +173,10 @@ if __name__ == '__main__':
     v1 = Pods()
     print "zcc"
     # v1.get_pod_details(name='nodedemo-deployment-65f968bdf4-2fv56', namespace='default')
-    # v1.get_pod_from_label_or_field(label_selector='app=jenkinstest')
+    v1.get_pod_from_label_or_field(label_selector='app=nodedemoold')
 
     # v1.get_pod_details(namespace=)
     # v1.get_pod_from_label_or_field(field_selector='10.108.210.194')
     # v1.get_all_pods()
-    v1.get_pod_log(name='my-nginx-78b4b97cc9-slswc')
+    # v1.get_pod_log(name='my-nginx-78b4b97cc9-slswc')
     # v1.get_watch()

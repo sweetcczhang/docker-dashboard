@@ -225,6 +225,7 @@ def add_job():
     script = request.values.get(key='script')
     username = request.values.get(key='username')
     password = request.values.get(key='password')
+    is_script = request.values.get(key='isScript')
     return_model = {}
 
     # 构建XML
