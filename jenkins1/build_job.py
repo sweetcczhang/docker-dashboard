@@ -199,7 +199,7 @@ def add_job():
     job_name = request.values.get(key='jobname')
     description = request.values.get(key='description', default=job_name)
     git_url = request.values.get(key='gitURL')
-    credentials_id = request.values.get(key='credentialsId', default='')
+    credentials_id = request.values.get(key='credentialsId', default='04ea4e1c-20aa-4223-abef-d83f7c46e8d2')
     branches = request.values.get(key='branches')
     timer_trigger = request.values.get(key='TimerTrigger')
     gitlab_trigger = request.values.get(key='gitlabTrigger')
@@ -209,6 +209,7 @@ def add_job():
     return_model = {}
 
     # 构建XML
+    print 'start build xml'
     doc = build_xml(description=description, git_url=git_url, credentials_id=credentials_id, branches=branches,
                     timer_trigger=timer_trigger, gitlab_trigger=gitlab_trigger, script=script)
 
@@ -394,6 +395,6 @@ def build_xml(description, git_url, credentials_id, branches, timer_trigger, git
 
     xml1buildWrappers = doc.createElement('buildWrappers')
     xmlroot.appendChild(xml1buildWrappers)
-
     doc.appendChild(xmlroot)
+    print doc.toxml()
     return doc

@@ -213,6 +213,10 @@ class JenkinsJob(object):
             print(format(err))
 
 
+if __name__ =='__main__':
+    js = JenkinsJob('http://10.108.210.227:9999', 'admin', 'root!@#456')
+    js.create_job('asdf', jenkins.EMPTY_CONFIG_XML)
+
 '''
 jks=jenkinsJob('http://10.108.210.227:9999','admin','root!@#456')
 version=jks.getVersion()
