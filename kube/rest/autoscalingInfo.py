@@ -46,12 +46,21 @@ def create_auto_scale():
         deploy_name = request.values.get(key='deployName')
         min_replicas = int(request.values.get(key='minReplicas', default=1))
         max_replicas = int(request.values.get(key='maxReplicas', default=10))
-        cpu = int(request.values.get(key='CPU', default=90))
-        memory = int(request.values.get(key='memory', default=90))
+        cpu = request.values.get(key='CPU', default=90)
+
+        if cpu == '':
+            cpu = 0
+        memory = request.values.get(key='memory', default=90)
+        if memory == '':
+            memory = 0
         metrics = request.values.get(key='metric')
+        if metrics == '[]':
+            metrics = None
 
         result = scale_client.create_auto_scale(namespace=namespace, name=name, labels=labels, deploy_name=deploy_name,
-                                                min_replicas=min_replicas, max_replicas=max_replicas, metrics=metrics)
+                                                min_replicas=min_replicas, max_replicas=max_replicas, customer=metrics,
+                                                cpu=cpu, memory=memory)
+
         if result is not None:
             return_model['retCode'] = 200
             return_model['retDesc'] = 'success'

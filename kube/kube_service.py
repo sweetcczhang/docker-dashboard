@@ -69,7 +69,7 @@ class Services(basic.Client):
         :param s_port:
         :param namespace:
         :param port_type:
-        :param selector:
+        :param selectors:
         :return:
         """
 
@@ -120,7 +120,7 @@ class Services(basic.Client):
         service.metadata = metadata
         service.spec = s_spec
         print service
-        # self.v1_client.create_namespaced_service(namespace=namespace, body=service)
+        self.v1_client.create_namespaced_service(namespace=namespace, body=service)
 
     def get_service_detail(self, name, namespace='default'):
         """

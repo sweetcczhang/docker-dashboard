@@ -91,6 +91,7 @@ class HostInfo(basic.Client):
     def host_detail(self, host_name):
         try:
             api_response = self.v1_client.read_node_status(name=host_name)
+            print api_response
             cpu = api_response.status.capacity[u'cpu']
             memory = api_response.status.capacity[u'memory']
             memory = memory[:len(memory) - 2]
