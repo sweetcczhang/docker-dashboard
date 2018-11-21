@@ -61,16 +61,23 @@ def get_all_job():
         for job in all_job:
             next_build = jks.get_job_info(name=job['name'])['nextBuildNumber'] - 1
             if next_build == 0:
-                temp = {'name': job['name'], 'result': 'notBuild', 'buildTime': 'notBuild',
-                        'duration': 'notBuild', 'builds': 'notBuild', 'branches': '/master'}
+                temp = {'name': job['name'], 'result': '未构建', 'buildTime': '未构建',
+                        'duration': '未构建', 'builds': '未构建', 'branches': '/master'}
             else:
                 build_info = jks.get_build_info(name=job['name'], number=next_build)
                 time_stamp = build_info['timestamp'] / 1000
                 timeArray = time.localtime(time_stamp)
                 otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-                temp = {'name': job['name'], 'result': build_info['result'], 'buildTime': otherStyleTime,
-                        'duration': build_info['duration']/1000, 'builds': build_info['displayName'],
+                if build_info['result'] is None:
+                    result = '构建中'
+                    duration = '构建中'
+                else:
+                    result = build_info['result']
+                    duration = build_info['duration']/1000
+                temp = {'name': job['name'], 'result': result, 'buildTime': otherStyleTime,
+                        'duration': duration, 'builds': build_info['displayName'],
                         'branches': '/master'}
+                print temp
             data.append(temp)
 
         # db = jenkins1.connect_db()
