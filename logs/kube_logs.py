@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 class KubeLogs(object):
 
-    def __init__(self, ip='10.108.210.194', ports='32494', user_name='root', pwd='root', db='k8s'):
+    def __init__(self, ip='10.108.210.194', ports='31159', user_name='root', pwd='root', db='k8s'):
         self.client = InfluxDBClient(ip, ports, user_name, pwd, db)
 
     def node_query(self, table_name, ip):

@@ -127,6 +127,7 @@ def upload_file():
     :return:
     """
     return_model = {}
+    print 'test'
     try:
         if request.method == 'POST':
             files = request.files['file']
@@ -148,6 +149,8 @@ def upload_file():
         return_model['retCode'] = 500
         return_model['retDesc'] = '创建任务失败'
         print e
+
+    return jsonify(return_model)
 
 
 @hosts.route('/getJson', methods=['POST', 'GET'])

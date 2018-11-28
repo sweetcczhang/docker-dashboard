@@ -65,47 +65,56 @@ class NodeLogs(kube_logs.KubeLogs):
         LOCK.acquire()
         (used, time) = self.node_query("cpu/usage_rate", ip)
         # print used
-        used = used[1:]
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         use = []
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c/1000.0
             use.append(c)
         i = len(use)
-        # print i
         a = use[i - 2]
         use[i - 1] = a
         # use[len(use) - 1] = use[len(use) - 2]
         # ßßprint use
         res["cpu"]["usage_rate"].setdefault("sum", use)
-        res["cpu"]["usage_rate"].setdefault("time", time[1:])
+        res["cpu"]["usage_rate"].setdefault("time", time)
 
         # (used, time) = self.node_query("cpu/limit", ip)
         # res["cpu"]["limit"].setdefault("sum", used)
         # res["cpu"]["limit"].setdefault("time", time)
 
         (used, time) = self.node_query("cpu/request", ip)
-        used = used[1:]
         use = []
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c/1000.0
             use.append(c)
 
         res["cpu"]["request"].setdefault("sum", use)
-        res["cpu"]["request"].setdefault("time", time[1:])
+        res["cpu"]["request"].setdefault("time", time)
 
         """
         memory的使用情况
         """
         (used, time) = self.node_query("memory/usage", ip)
-        used = used[1:]
+
         use = []
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c / (1024.0 * 1024.0)
             use.append(c)
         i = len(use)
@@ -119,22 +128,28 @@ class NodeLogs(kube_logs.KubeLogs):
         # res["memory"]["limit"].setdefault("time", time)
 
         (used, time) = self.node_query("memory/request", ip)
-        used = used[1:]
         use = []
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c / (1024.0 * 1024.0)
             use.append(c)
         res["memory"]["request"].setdefault("sum", use)
-        res["memory"]["request"].setdefault("time", time[1:])
+        res["memory"]["request"].setdefault("time", time)
 
         (used, time) = self.node_query("memory/working_set", ip)
-        used = used[1:]
         use = []
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c / (1024.0 * 1024.0)
             use.append(c)
         res["memory"]["working_set"].setdefault("sum", use)
@@ -156,25 +171,31 @@ class NodeLogs(kube_logs.KubeLogs):
         filesystem的使用情况
         """
         (used, time) = self.node_query("filesystem/usage", ip)
-        used = used[1:]
         use = []
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c / (1024.0 * 1024.0 * 2.0)
             use.append(c)
         res["filesystem"]["usage"].setdefault("sum", use)
-        res["filesystem"]["usage"].setdefault("time", time[1:])
-        used = used[1:]
+        res["filesystem"]["usage"].setdefault("time", time)
         use = []
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
         for c in used:
             if c is None:
-                c = use[-1]
+                c = flag
             c = c / (1024.0 * 1024.0 * 2.0)
             use.append(c)
         (used, time) = self.node_query("filesystem/limit", ip)
         res["filesystem"]["limit"].setdefault("sum", use)
-        res["filesystem"]["limit"].setdefault("time", time[1:])
+        res["filesystem"]["limit"].setdefault("time", time)
         LOCK.release()
         return res
 

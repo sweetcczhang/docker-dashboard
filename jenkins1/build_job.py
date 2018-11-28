@@ -222,8 +222,11 @@ def re_config_job():
 @jenkin.route('/addJob', methods=['GET', 'POST'])
 def add_job():
     # 获取参数 None=null
-    job_name = request.values.get(key='jobname')
+    job_name = request.values.get(key='jobName')
+    print "job_name："
+    print job_name
     description = request.values.get(key='description', default=job_name)
+    print description
     git_url = request.values.get(key='gitURL')
     credentials_id = request.values.get(key='credentialsId', default='04ea4e1c-20aa-4223-abef-d83f7c46e8d2')
     branches = request.values.get(key='branches')

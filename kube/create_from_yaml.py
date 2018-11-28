@@ -45,6 +45,7 @@ class YamlCreate(basic.Client):
         dep = yaml.load_all(f)
         try:
             for body in dep:
+                print body
                 namespace = 'default'
                 if body['metadata'].has_key('namespace'):
                     namespace = body['metadata']['namespace']
@@ -67,10 +68,10 @@ class YamlCreate(basic.Client):
                 elif body['kind'] == 'ServiceAccount':
                     self.v1_client.create_namespaced_service_account(namespace=namespace, body=body)
                 elif body['kind'] == 'HorizontalPodAutoscaler':
-                    namespace = ''
+                    namespace = 'default'
                     self.auto_client.create_namespaced_horizontal_pod_autoscaler(namespace=namespace, body=body)
                 else:
-                    print ()
+                    print('test')
         except ApiException as e:
             print e
         except Exception as e:

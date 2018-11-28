@@ -55,7 +55,20 @@ class PodLogs(kube_logs.KubeLogs):
         # print 'pod cpu'
         (used, time) = self.pod_query("cpu/usage_rate", namespace, pod_name)
         # print used
-        res["cpu"]["usage_rate"].setdefault("sum", used)
+        flag = 0
+        for z in used:
+            if z is not None:
+                flag = z
+        use = []
+        for c in used:
+            if c is None:
+                c = flag
+            c = c / 1000.0
+            use.append(c)
+        i = len(use)
+        a = use[i - 2]
+        use[i - 1] = a
+        res["cpu"]["usage_rate"].setdefault("sum", use)
         res["cpu"]["usage_rate"].setdefault("time", time)
         """
         cpu的使用限制
@@ -67,8 +80,20 @@ class PodLogs(kube_logs.KubeLogs):
         cpu的请求量
         """
         (used, time) = self.pod_query("cpu/request", namespace, pod_name)
-        res["cpu"]["request"].setdefault("sum", used)
+        used = used[1:]
+        use = []
+        for c in used:
+            if c is None:
+                c = use[-1]
+            c = c / 1000.0
+            use.append(c)
+        i = len(use)
+        # print i
+        a = use[i - 2]
+        use[i - 1] = a
+        res["cpu"]["request"].setdefault("sum", use)
         res["cpu"]["request"].setdefault("time", time)
+
 
         """
         memory的使用情况
