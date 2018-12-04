@@ -13,6 +13,7 @@ from kube.rest.services import service_s
 from kube.rest.deployments import deploy
 from kube.rest.autoscalingInfo import autoscaling
 from harbor.rest.restapi import harbors
+from kube.rest.namespace import space
 from terminal.pod_client import KubernetesClient
 from terminal.pod_stream_thread import StreamThread
 from terminal.host_stream_thread import HostStreamThread
@@ -34,6 +35,7 @@ app.register_blueprint(service_s, url_prefix='/service')
 app.register_blueprint(logs, url_prefix='/log')
 app.register_blueprint(autoscaling, url_prefix='/autoScale')
 app.register_blueprint(jenkin, url_prefix='/jenkins')
+app.register_blueprint(space, url_prefix='/namespace')
 
 
 @app.route('/test1')
