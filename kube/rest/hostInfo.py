@@ -114,6 +114,7 @@ def get_all_cluster_info():
         'repoNum': len(repositories),
         'logNum': 15
     }
+
     return_model['retCode'] = 200
     return_model['retDesc'] = 'success'
     return_model['data'] = data
